@@ -101,6 +101,7 @@ export function useHandInput(onUpdate) {
               active: true,
               x: smoothX,
               y: smoothY,
+              aim: aimGesture,
               fire: fireState,
               landmarks: lm.map(p => ({
                 x: p.x,
