@@ -168,5 +168,5 @@ fireState = fire;
       video?.srcObject?.getTracks().forEach(t => t.stop());
       video?.parentNode?.removeChild(video);
     };
-  }, []);
+  }, [onUpdate]);
 } 
