@@ -4,12 +4,12 @@ import { useState, useEffect, useRef } from "react";
  * Enemy manager hook
  * Spawns enemies on beat and moves them across the screen
  */
-export function useEnemies(beatDetected, isPlaying) {
+export function useEnemies(beatDetected, isPlaying, onEnemySpawn) {
   const [enemies, setEnemies] = useState([]);
   const nextIdRef = useRef(0);
 
   // Enemy movement speed (pixels per frame at 60fps)
-  const ENEMY_SPEED = 3;
+  const ENEMY_SPEED = 2;
   const SCREEN_WIDTH = typeof window !== "undefined" ? window.innerWidth : 1920;
   
   // Emoji options for enemies
@@ -26,12 +26,17 @@ export function useEnemies(beatDetected, isPlaying) {
         x: 0, // Start at left edge
         y: randomY,
         emoji: randomEmoji,
-        size: 40 + Math.random() * 20, // Random size between 40-60px
+        size: 5 + Math.random() * 10, // Random size between 5-15px
       };
       
       setEnemies(prev => [...prev, newEnemy]);
+      
+      // Trigger strong pulse on enemy spawn
+      if (onEnemySpawn) {
+        onEnemySpawn();
+      }
     }
-  }, [beatDetected, isPlaying]);
+  }, [beatDetected, isPlaying, onEnemySpawn]);
 
   // Update enemy positions and remove off-screen enemies
   useEffect(() => {

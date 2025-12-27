@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useHandInput } from "./hooks/useHandInput";
 import { useAudioAnalyzer } from "./hooks/useAudioAnalyzer";
 import { useEnemies } from "./hooks/useEnemies";
@@ -9,14 +9,30 @@ import blackoutAudio from "./assets/audio/blackout.mp3";
 
 export default function App() {
   const [hand, setHand] = useState({ active: false });
+  const pulsesRef = useRef([]);
 
   useHandInput(setHand);
 
   // Audio system using local blackout.mp3 file
   const audio = useAudioAnalyzer(blackoutAudio);
   
-  // Enemy spawning system
-  const { enemies } = useEnemies(audio.beatDetected, audio.isPlaying);
+  // Callback to trigger strong pulse on enemy spawn
+  const handleEnemySpawn = useCallback(() => {
+    const NEON_COLORS = [0, 120, 180, 240, 300, 45];
+    
+    pulsesRef.current.push({
+      x: 0,
+      radius: 0,
+      strength: 2, // Strong pulse
+      color: NEON_COLORS[Math.floor(Math.random() * NEON_COLORS.length)],
+      opacity: 1,
+      amplitude: 80 + Math.random() * 40,
+      rippleCount: 3, // More ripples for strong pulse
+    });
+  }, []);
+  
+  // Enemy spawning system with strong pulse callback
+  const { enemies } = useEnemies(audio.beatDetected, audio.isPlaying, handleEnemySpawn);
 
   return (
     <>
@@ -25,6 +41,7 @@ export default function App() {
         currentAmplitude={audio.currentAmplitude}
         beatDetected={audio.beatDetected}
         isPlaying={audio.isPlaying}
+        pulsesRef={pulsesRef}
       />
 
       {/* Enemies */}
