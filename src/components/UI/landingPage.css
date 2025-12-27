@@ -1,0 +1,146 @@
+/* Base Layout */
+.landing-wrapper {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+              url('/src/assets/homeBg_1.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Header Tags */
+.header-tags {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+}
+
+.tag-box {
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #ffcc00;
+  padding: 5px 20px;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.gold-text { color: #ffcc00; }
+
+/* Side Panels (Controls & Leaderboard) */
+.main-layout {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  width: 90%;
+  max-width: 1200px;
+}
+
+.side-container {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 204, 0, 0.5);
+  padding: 20px;
+  width: 220px;
+  height: 350px;
+}
+
+.container-title {
+  color: #ffcc00;
+  border-bottom: 2px solid #ffcc00;
+  margin-top: 0;
+  padding-bottom: 5px;
+  font-size: 1.1rem;
+}
+
+.control-label {
+  display: block;
+  color: #ffcc00;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+/* Center Box */
+.center-box {
+  flex: 1;
+  text-align: center;
+  border: 2px solid #ffcc00;
+  padding: 60px 40px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.game-logo {
+  font-size: 8rem;
+  font-weight: 900;
+  margin: 0 0 40px 0;
+  letter-spacing: -2px;
+  -webkit-text-stroke: 2px #000;
+  text-shadow: 4px 4px 0px #ed4242;
+}
+
+/* The Yellow Slanted Button */
+.button-wrapper {
+  position: relative;
+  display: inline-block;
+  transform: skewX(-15deg);
+  margin-bottom: 30px;
+}
+
+.start-button {
+  background: #ffcc00;
+  color: #111;
+  border: none;
+  padding: 15px 60px;
+  font-size: 2.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.start-button:active {
+  top: 4px;
+}
+
+/* Hand Status Indicator */
+.hand-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0,0,0,0.6);
+  padding: 5px 20px;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.status-dot { width: 12px; height: 12px; border-radius: 50%; }
+.online { background: #00ff00; box-shadow: 0 0 10px #00ff00; }
+.offline { background: #ff0000; }
+
+/* Snowfall Animation */
+.snowflake {
+  position: absolute;
+  top: -10%;
+  color: white;
+  user-select: none;
+  pointer-events: none;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh); }
+}
+
+/* Randomize snow flakes */
+.snowflake:nth-child(odd) { animation-duration: 7s; left: 10%; }
+.snowflake:nth-child(even) { animation-duration: 12s; left: 80%; }
