@@ -1,26 +1,24 @@
-/**
- * Simple enemy renderer
- * Displays enemies as emoji characters positioned absolutely
- */
 export default function EnemyRenderer({ enemies }) {
+  if (!enemies || enemies.length === 0) return null;
+
   return (
     <>
-      {enemies.map(enemy => (
-        <div
+      {enemies.map((enemy) => (
+        <img
           key={enemy.id}
+          src={enemy.image}
+          alt="enemy"
           style={{
-            position: "fixed",
-            left: enemy.x,
-            top: enemy.y,
-            fontSize: enemy.size,
-            transform: "translate(-50%, -50%)",
+            position: "fixed", // Changed to fixed to stay relative to the screen
+            left: `${enemy.x}px`,
+            top: `${enemy.y}px`,
+            width: `${enemy.size}px`,
+            height: "auto",
             pointerEvents: "none",
-            zIndex: 5,
-            textShadow: "0 0 10px rgba(0, 255, 255, 0.8)",
+            zIndex: 10, // Ensure they are above the background
+            transform: "translate(-50%, -50%)", // Centers the image on its coordinates
           }}
-        >
-          {enemy.emoji}
-        </div>
+        />
       ))}
     </>
   );
