@@ -4,8 +4,8 @@ import gremlinImg from "../assets/enemy_sprites/gremlin_new.png";
 
 // Use paths relative to your public folder or src/assets
 const ENEMY_IMAGES = [krampusImg, gremlinImg];
-const ENEMY_SPEED = 0.08; // 3D units per frame
-const SPAWN_RADIUS = 15; // Distance from center where enemies spawn
+const ENEMY_SPEED = 0.065; // 3D units per frame
+const SPAWN_RADIUS = 20; // Distance from center where enemies spawn
 const KILL_RADIUS = 2; // Distance at which enemies die (reach player)
 
 export function useEnemies(beatDetected, isPlaying, onEnemySpawn) {
@@ -16,7 +16,7 @@ export function useEnemies(beatDetected, isPlaying, onEnemySpawn) {
   useEffect(() => {
     if (beatDetected && isPlaying) {
       setEnemies(prev => {
-        const MIN_Y_DISTANCE = 2; // Minimum vertical distance in 3D units
+        const MIN_Y_DISTANCE = 0.5; // Minimum vertical distance in 3D units
         let randomY;
         let validPosition = false;
         let attempts = 0;
@@ -24,14 +24,14 @@ export function useEnemies(beatDetected, isPlaying, onEnemySpawn) {
         // Try to find a Y position that doesn't overlap with existing enemies
         // Y range from 0.5 to 3.0 (ground level to head height)
         while (!validPosition && attempts < 10) {
-          randomY = Math.random() * 2.5 + 0.5;
+          randomY = Math.random() * 0.4 + 0.8;
           validPosition = prev.every(enemy => Math.abs(enemy.position[1] - randomY) >= MIN_Y_DISTANCE);
           attempts++;
         }
         
         // If we couldn't find a valid position after 10 attempts, use the random position anyway
         if (attempts === 10) {
-          randomY = Math.random() * 2.5 + 0.5;
+          randomY = Math.random() * 0.4 + 0.8;
         }
         
         const randomImg = ENEMY_IMAGES[Math.floor(Math.random() * ENEMY_IMAGES.length)];

@@ -6,7 +6,7 @@ export default function ShootingSystem({ hand, setScore }) {
   const [lasers, setLasers] = useState([]);
   const lastShot = useRef(0);
 
-  const FIRE_RATE = 200; // ms
+  const FIRE_RATE = 400; // ms
 
   // fire control (machine gun)
   useFrame(() => {
