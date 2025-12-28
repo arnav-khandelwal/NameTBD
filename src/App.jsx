@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { IoMusicalNotes, IoStop } from "react-icons/io5";
+import { IoMusicalNotes, IoStop, IoHome } from "react-icons/io5";
 import { useHandInput } from "./hooks/useHandInput";
 import { useAudioAnalyzer } from "./hooks/useAudioAnalyzer";
 import { useEnemies } from "./hooks/useEnemies";
@@ -11,14 +11,21 @@ import ScopeOverlay from "./components/UI/ScopeOverlay";
 import Minimap from "./components/UI/Minimap";
 import "./components/UI/ScopeOverlay.css";
 
-export default function App() {
+export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive }) {
   const [hand, setHand] = useState({ active: false });
-  const [showSongSelector, setShowSongSelector] = useState(false);
+  const [internalShowSongSelector, setInternalShowSongSelector] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
+
+  // Use external control if provided, otherwise use internal state
+  const showSongSelector = externalShowSongSelector !== undefined ? externalShowSongSelector : internalShowSongSelector;
+  const setShowSongSelector = externalSetShowSongSelector || setInternalShowSongSelector;
 
   const pulsesRef = useRef([]);
 
   useHandInput(setHand);
+
+  // Disable aim and fire when on landing page
+  const activeHand = isGameActive ? hand : { ...hand, aim: false, fire: false };
 
   // Audio system - only initialize when song is selected
   const audio = useAudioAnalyzer(selectedSong?.audioUrl || null);
@@ -45,6 +52,12 @@ export default function App() {
   const handleSongSelect = (song) => {
     setSelectedSong(song);
     setShowSongSelector(false);
+    
+    // Notify parent that song was selected (hide landing page)
+    if (onSongSelected) {
+      onSongSelected();
+    }
+    
     // Auto-play the selected song
     setTimeout(() => {
       audio.play();
@@ -54,6 +67,19 @@ export default function App() {
   const handleStop = () => {
     audio.pause();
     setSelectedSong(null);
+  };
+
+  const handleMainMenuClick = () => {
+    // Pause audio if playing
+    if (audio.isPlaying) {
+      audio.pause();
+    }
+    // Clear selected song
+    setSelectedSong(null);
+    // Navigate to main menu
+    if (onMainMenu) {
+      onMainMenu();
+    }
   };
 
   return (
@@ -79,11 +105,11 @@ export default function App() {
 
       <HandCanvas
         landmarks={hand.landmarks}
-        aim={hand.aim}
-        fire={hand.fire}
+        aim={activeHand.aim}
+        fire={activeHand.fire}
       />
 
-      <ScopeOverlay visible={hand.aim} />
+      <ScopeOverlay visible={activeHand.aim} />
       {/* Top-right Controls */}
       <div style={{ 
         position: "fixed", 
@@ -94,6 +120,40 @@ export default function App() {
         flexDirection: "column", 
         gap: "10px" 
       }}>
+        {/* Main Menu Button */}
+        <button
+          onClick={handleMainMenuClick}
+          style={{
+            padding: "12px 18px",
+            fontSize: "24px",
+            background: "rgba(138, 43, 226, 0.12)",
+            color: "#8a2be2",
+            border: "2px solid #8a2be2",
+            borderRadius: "12px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            boxShadow: "0 4px 12px rgba(138, 43, 226, 0.15)",
+            transition: "all 0.3s ease",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#8a2be2";
+            e.currentTarget.style.color = "#fff";
+            e.currentTarget.style.transform = "translateY(-2px)";
+            e.currentTarget.style.boxShadow = "0 6px 20px rgba(138, 43, 226, 0.25)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(138, 43, 226, 0.12)";
+            e.currentTarget.style.color = "#8a2be2";
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(138, 43, 226, 0.15)";
+          }}
+        >
+          <IoHome />
+        </button>
+
         <button
           onClick={() => setShowSongSelector(true)}
           style={{
@@ -198,7 +258,7 @@ export default function App() {
       )}
 
       {/* Minimap */}
-      <Minimap enemies={enemies} hand={hand} />
+      <Minimap enemies={enemies} hand={activeHand} />
     </>
   );
 }
