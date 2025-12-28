@@ -13,13 +13,14 @@ function isFingerExtended(lm, tip, pip) {
   return dist3(lm[tip], wrist) > dist3(lm[pip], wrist);
 }
 
-export function useHandInput(onUpdate) {
+export function useHandInput(onUpdate, isGameActive) {
   useEffect(() => {
+    if (!isGameActive) return;
     let handLandmarker;
     let video;
 
     let camX = 0.5;
-    let camY = 0.5;    
+    let camY = 0.5;
 
     let fireState = false;
     let fireSince = 0;
@@ -32,13 +33,20 @@ export function useHandInput(onUpdate) {
 
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       video.srcObject = stream;
+      if (!isGameActive) {
+        if (video?.srcObject) {
+  video.srcObject.getTracks().forEach(t => t.stop());
+}
 
-      video.style.position = "fixed";
-      video.style.right = "10px";
-      video.style.bottom = "10px";
-      video.style.width = "140px";
-      document.body.appendChild(video);
-
+        return;
+      }
+      else {
+        video.style.position = "fixed";
+        video.style.left = "10px";
+        video.style.bottom = "120px";
+        video.style.width = "180px";
+        document.body.appendChild(video);
+      }
       const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
       );
@@ -90,7 +98,7 @@ export function useHandInput(onUpdate) {
 
         let aim = false;
         let lm = gunHand;
-        
+
         if (gunHand) {
           const indexExt = isFingerExtended(lm, 8, 6);
           const middleExt = isFingerExtended(lm, 12, 10);
@@ -153,12 +161,12 @@ export function useHandInput(onUpdate) {
             );
 
           fireState = fire;
-          
+
           onUpdate({
             active: !!(gunHand || cameraHand),
             x: camX,
             y: camY,
-            aim: aim, 
+            aim: aim,
             fire: fireState,
             verticalHand,
             pinchNorm,
@@ -192,5 +200,5 @@ export function useHandInput(onUpdate) {
       video?.srcObject?.getTracks().forEach(t => t.stop());
       video?.parentNode?.removeChild(video);
     };
-  }, [onUpdate]); 
+  }, [onUpdate , isGameActive]);
 }

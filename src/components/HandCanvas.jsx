@@ -8,10 +8,10 @@ const HAND_CONNECTIONS = [
   [0,17],[17,18],[18,19],[19,20],
 ];
 
-export default function HandCanvas({ landmarks, fire }) {
+export default function HandCanvas({ landmarks, fire , isGameActive}) {
   const canvasRef = useRef(null);
-
   useEffect(() => {
+    if (!isGameActive) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
@@ -58,8 +58,8 @@ export default function HandCanvas({ landmarks, fire }) {
       ctx.fillStyle = color;
       ctx.fill();
     });
-  }, [landmarks, fire]);
-
+  }, [landmarks, fire , isGameActive]);
+if (!isGameActive) return;
   return (
     <canvas
       ref={canvasRef}

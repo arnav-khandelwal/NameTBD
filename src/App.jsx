@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback,useEffect } from "react";
 import { IoMusicalNotes, IoStop, IoHome } from "react-icons/io5";
 import { useHandInput } from "./hooks/useHandInput";
 import { useAudioAnalyzer } from "./hooks/useAudioAnalyzer";
@@ -15,6 +15,7 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
   const [hand, setHand] = useState({ active: false });
   const [internalShowSongSelector, setInternalShowSongSelector] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
+  const [score, setScore] = useState(0);
 
   // Use external control if provided, otherwise use internal state
   const showSongSelector = externalShowSongSelector !== undefined ? externalShowSongSelector : internalShowSongSelector;
@@ -22,7 +23,7 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
 
   const pulsesRef = useRef([]);
 
-  useHandInput(setHand);
+  useHandInput(setHand, isGameActive);
 
   // Disable aim and fire when on landing page
   const activeHand = isGameActive ? hand : { ...hand, aim: false, fire: false };
@@ -81,7 +82,6 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
       onMainMenu();
     }
   };
-
   return (
     <>
       {/* Song Selection Modal */}
@@ -100,10 +100,9 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
         pulsesRef={pulsesRef}
       />
 
-      {/* 3D World with enemies and hand tracking */}
-      <World hand={hand} enemies={enemies} />
+      <World hand={hand} enemies={enemies} setScore={setScore} />
 
-      <HandCanvas
+      <HandCanvas isGameActive={isGameActive}
         landmarks={hand.landmarks}
         aim={activeHand.aim}
         fire={activeHand.fire}
@@ -256,7 +255,23 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
           )}
         </div>
       )}
-
+      {isGameActive && <div
+  style={{
+    position: "fixed",
+    top: 10,
+    right: 90,
+    color: "white",
+    fontSize: "24px",
+    fontWeight: "bold",
+    zIndex: 9999,
+    background: "rgba(0,0,0,0.6)",
+    padding: "10px 16px",
+    borderRadius: "8px",
+  }}
+>
+  Score: {score}
+</div>
+}
       {/* Minimap */}
       <Minimap enemies={enemies} hand={activeHand} />
     </>

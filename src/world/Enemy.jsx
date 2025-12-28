@@ -18,7 +18,8 @@ export default function Enemy({ position, image, size }) {
   });
 
   return (
-    <sprite ref={meshRef} position={position} scale={[size, size, 1]}>
+    <sprite ref={meshRef} position={position} scale={[size, size, 1]}
+    userData={{ isEnemy: true, health: 25 }}>
       <spriteMaterial 
         map={texture} 
         transparent 

@@ -11,7 +11,7 @@ export default function CameraRig({ hand }) {
     if (hand?.active) {
       // Extend rotation range: hand.x (0 to 1) maps to more than 360 degrees
       // Multiply by 2.5 to get ~450 degrees of rotation for smoother experience
-      const yaw = (hand.x - 0.5) * Math.PI * 5; // 2.5 full rotations worth of range
+      const yaw = (hand.x - 0.5) * Math.PI * 5; 
       camera.rotation.y = yaw;
       lastRotation.current = yaw; // Store the rotation
     } else {
