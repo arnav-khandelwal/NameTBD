@@ -33,7 +33,15 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
 
   // Callback to trigger strong pulse on enemy spawn
   const handleEnemySpawn = useCallback((spawnY) => {
-    const NEON_COLORS = [0, 120, 180, 240, 300, 45];
+    const NEON_COLORS = [
+  350, // deep christmas red
+  5,   // warm red
+  38,  // soft gold
+  48,  // champagne gold
+  100, // muted pine green (NOT pure green)
+  165  // teal-green (aurora vibe)
+];
+
 
     pulsesRef.current.push({
       x: 0,
