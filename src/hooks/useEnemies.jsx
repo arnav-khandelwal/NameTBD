@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import krampusImg from "../assets/enemy_sprites/krampus_new.png";
 import gremlinImg from "../assets/enemy_sprites/gremlin_new.png";
-
+import ghostImg from "../assets/enemy_sprites/ghostImg.png"
+import elfBoss from "../assets/enemy_sprites/elfBoss_1.png"
+import reaperBoss from "../assets/enemy_sprites/reaperBoss_1.png"
+import orcBoss from "../assets/enemy_sprites/orcBoss.png"
 // Use paths relative to your public folder or src/assets
-const ENEMY_IMAGES = [krampusImg, gremlinImg];
+const ENEMY_IMAGES = [krampusImg, gremlinImg,ghostImg];
+const BOSS_IMAGES=[elfBoss,reaperBoss,orcBoss];
 const ENEMY_SPEED = 0.045; // 3D units per frame
 const SPAWN_RADIUS = 15; // Distance from center where enemies spawn
 const KILL_RADIUS = 2; // Distance at which enemies die (reach player)
@@ -11,6 +15,51 @@ const KILL_RADIUS = 2; // Distance at which enemies die (reach player)
 export function useEnemies(beatDetected, isPlaying, onEnemySpawn) {
   const [enemies, setEnemies] = useState([]);
   const nextIdRef = useRef(0);
+const lastBossSpawnRef = useRef(Date.now());// Tracks time for the 1-minute boss
+  // Helper to spawn a boss
+  const spawnBoss = () => {
+    lastBossSpawnRef.current = Date.now();
+    
+    setEnemies(prev => {
+      const angle = Math.random() * Math.PI * 2;
+      const spawnX = Math.cos(angle) * SPAWN_RADIUS;
+      const spawnZ = Math.sin(angle) * SPAWN_RADIUS;
+      
+      const bossImg = BOSS_IMAGES[Math.floor(Math.random() * BOSS_IMAGES.length)];
+      
+      const bossEnemy = {
+        id: nextIdRef.current++,
+        position: [spawnX, 0.6, spawnZ], // Bosses spawn a bit higher/grounded
+        direction: [-spawnX / SPAWN_RADIUS, 0, -spawnZ / SPAWN_RADIUS],
+        type: "BOSS",
+        image: bossImg,
+        size: 6,            // bigger than minions
+        health: 500,          // 10x normal Krampus health (50 * 10)
+        maxHealth: 500,
+        isBoss: true          // Flag for potential special effects
+      };
+      
+      if (onEnemySpawn) onEnemySpawn(0.6);
+      return [...prev, bossEnemy];
+    });
+  };
+
+  // 1. Minute Timer for Boss
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+
+    const bossCheckInterval = setInterval(() => {
+      const now = Date.now();
+      // Check if 60 seconds (60000ms) have passed
+      if (now - lastBossSpawnRef.current >= 60000) {
+        spawnBoss(now);
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(bossCheckInterval);
+  }, [isPlaying]);
+
 const damageEnemy = (id, dmg) => {
   setEnemies(prev =>
     prev

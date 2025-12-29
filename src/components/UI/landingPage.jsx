@@ -3,6 +3,9 @@ import "./landingPage.css";
 import { FaGamepad, FaBell, FaTrophy, FaStar, FaTree, FaSnowflake, FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import { GiPineTree, GiSparkles } from "react-icons/gi";
 import { IoSnowSharp } from "react-icons/io5";
+import { HiArrowSmLeft } from "react-icons/hi";
+import { HiArrowSmRight } from "react-icons/hi";
+import { FaHandPaper } from "react-icons/fa";
 
 export default function LandingPage({  onFreePlayStart }) {
   const [showCampaign, setShowCampaign] = useState(false);
@@ -212,13 +215,10 @@ export default function LandingPage({  onFreePlayStart }) {
       <div className="main-layout">
         {/* Left: Controls */}
         <div className="side-container controls">
-          <div className="corner-decoration top-left">
-            <FaTree className="decoration-icon" />
-          </div>
-          <div className="corner-decoration top-right">
-            <GiPineTree className="decoration-icon" />
-            <FaStar className="decoration-berry" />
-          </div>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-right-wreath"/>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-left-wreath"/>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-left-wreath"/>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-right-wreath"/>
           <h2 className="container-title">
             <FaGamepad className="title-icon" />
             <FaBell className="title-icon-accent" />
@@ -226,23 +226,21 @@ export default function LandingPage({  onFreePlayStart }) {
           </h2>
           <div className="control-group">
             <span className="control-label">CAMERA</span>
-            <div className="control-desc"><p>🠔🖐️🠖</p>Open Hand (Left)</div>
+            <div className="control-desc"><p><HiArrowSmLeft /> <FaHandPaper /> <HiArrowSmRight /></p>Open Hand (Left)</div>
           </div>
           <div className="control-group">
             <span className="control-label">SHOOT</span>
-            <div className="control-desc"> <p> ✋🠖 🤏</p>Pinch Gesture</div>
+            <div className="control-desc"> <p> <FaHandPaper /> <HiArrowSmRight /> 🤏</p>Pinch Gesture</div>
           </div>
         </div>
 
         {/* Center: Main Game UI */}
         <div className="center-box">
-          <div className="top-garland">
-            <FaTree className="garland-tree" />
-            <FaStar className="garland-berry" />
-            <FaTree className="garland-tree" />
-            <FaStar className="garland-berry" />
-            <FaTree className="garland-tree" />
-          </div>
+           <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-right-wreath"/>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-left-wreath"/>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-left-wreath"/>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-right-wreath"/>
+          
           {showCampaign && (
             <button className="go-back-btn" onClick={handleGoBack}>
               ← BACK
@@ -290,13 +288,10 @@ export default function LandingPage({  onFreePlayStart }) {
 
         {/* Right: Leaderboard */}
         <div className="side-container leaderboard">
-          <div className="corner-decoration top-left">
-            <FaTree className="decoration-icon" />
-          </div>
-          <div className="corner-decoration top-right">
-            <GiPineTree className="decoration-icon" />
-            <FaStar className="decoration-berry" />
-          </div>
+          <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-right-wreath"/>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-left-wreath"/>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-left-wreath"/>
+        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-right-wreath"/>
           <h2 className="container-title">
             <FaTrophy className="title-icon" />
             <FaStar className="title-icon-accent" />
