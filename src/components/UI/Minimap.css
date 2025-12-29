@@ -3,12 +3,15 @@
   top: 10px;
   left: 10px;
   z-index: 100;
-  background: radial-gradient(circle at top, rgba(2, 10, 18, 0.9), rgba(0, 0, 0, 0.86));
+  background: radial-gradient(circle at top, rgba(6, 24, 40, 0.9), rgba(0, 0, 0, 0.82));
   border-radius: 14px;
   padding: 8px;
-  border: 2px solid rgba(0, 255, 255, 0.4);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
+  border: 2px solid rgba(0, 255, 255, 0.65);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.7),
+    0 8px 22px rgba(0, 0, 0, 0.85),
+    0 0 24px rgba(0, 220, 255, 0.32);
+  backdrop-filter: blur(7px);
   overflow: hidden;
 }
 
@@ -28,7 +31,7 @@
     transparent 360deg
   );
   mix-blend-mode: screen;
-  opacity: 0.25;
+  opacity: 0.3;
   transform-origin: 50% 50%;
   animation: minimap-sweep 6.5s linear infinite;
 }
@@ -46,7 +49,7 @@
     radial-gradient(circle at center, rgba(0, 255, 255, 0.3) 0, transparent 24%),
     radial-gradient(circle at center, rgba(0, 255, 255, 0.22) 0, transparent 12%);
   mix-blend-mode: screen;
-  opacity: 0.35;
+  opacity: 0.42;
   animation: minimap-center-pulse 3.8s ease-in-out infinite;
 }
 

@@ -140,13 +140,13 @@ export default function LandingPage({  onFreePlayStart }) {
 
       {/* Top Header Tags */}
       <div className="header-tags">
-        <div className="tag-box candy-cane-border">v0.0.0</div>
-        <div className="tag-box gold-text candy-cane-border">CHRISTMAS SPECIAL</div>
+        <div className="tag-box">v0.0.0</div>
+        <div className="tag-box gold-text">CHRISTMAS SPECIAL</div>
       </div>
 
       <div className="main-layout">
         {/* Left: Controls */}
-        <div className="side-container controls candy-cane-border">
+        <div className="side-container controls">
           <h2 className="container-title">CONTROLS</h2>
           <div className="control-group">
             <span className="control-label">CAMERA</span>
@@ -159,7 +159,7 @@ export default function LandingPage({  onFreePlayStart }) {
         </div>
 
         {/* Center: Main Game UI */}
-        <div className="center-box candy-cane-border">
+        <div className="center-box">
           {showCampaign && (
             <button className="go-back-btn" onClick={handleGoBack}>
               ← BACK
@@ -206,7 +206,7 @@ export default function LandingPage({  onFreePlayStart }) {
         </div>
 
         {/* Right: Leaderboard */}
-        <div className="side-container leaderboard candy-cane-border">
+        <div className="side-container leaderboard">
           <h2 className="container-title">LEADERBOARD</h2>
           {leaderboard.map((entry, index) => (
             <div key={index} className="leader-entry">
