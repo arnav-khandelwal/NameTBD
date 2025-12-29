@@ -1,0 +1,90 @@
+ .minimap-shell {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  background: radial-gradient(circle at top, rgba(2, 10, 18, 0.9), rgba(0, 0, 0, 0.86));
+  border-radius: 14px;
+  padding: 8px;
+  border: 2px solid rgba(0, 255, 255, 0.4);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+}
+
+.minimap-shell::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(from 0deg,
+    rgba(0, 255, 255, 0.0) 0deg,
+    rgba(0, 255, 255, 0.23) 25deg,
+    transparent 55deg,
+    transparent 360deg
+  );
+  mix-blend-mode: screen;
+  opacity: 0.25;
+  transform-origin: 50% 50%;
+  animation: minimap-sweep 6.5s linear infinite;
+}
+
+.minimap-shell::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, rgba(0, 255, 255, 0.3) 0, transparent 24%),
+    radial-gradient(circle at center, rgba(0, 255, 255, 0.22) 0, transparent 12%);
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  animation: minimap-center-pulse 3.8s ease-in-out infinite;
+}
+
+.minimap-canvas {
+  display: block;
+}
+
+.minimap-label {
+  color: #a9f7ff;
+  font-size: 10px;
+  text-align: center;
+  margin-top: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes minimap-sweep {
+  0% {
+    transform: rotate(0deg);
+    opacity: 0.18;
+  }
+  40% {
+    opacity: 0.28;
+  }
+  100% {
+    transform: rotate(360deg);
+    opacity: 0.18;
+  }
+}
+
+@keyframes minimap-center-pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(1.03);
+  }
+}

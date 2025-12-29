@@ -4,7 +4,7 @@
   inset: 0;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+  background: radial-gradient(circle at top, rgba(32, 62, 120, 0.55), rgba(6, 10, 24, 0.78)),
               url('/src/backgrounds/assets/homeBg_1.jpg');
   background-size: cover;
   background-position: center;
@@ -16,6 +16,44 @@
   justify-content: center;
   overflow: hidden;
   z-index: 1000;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45);
+}
+
+.landing-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(255, 245, 180, 0.12) 0, transparent 45%),
+    radial-gradient(circle at 85% 20%, rgba(255, 120, 120, 0.12) 0, transparent 45%),
+    radial-gradient(circle at 20% 75%, rgba(170, 255, 170, 0.08) 0, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(255, 230, 200, 0.12) 0, transparent 45%),
+    repeating-linear-gradient(45deg,
+      rgba(255, 255, 255, 0.03) 0px,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.65;
+  z-index: 0;
+}
+
+.landing-wrapper::after {
+  content: "";
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  bottom: -2%;
+  height: 26vh;
+  pointer-events: none;
+  z-index: 0;
+  background-repeat: repeat-x;
+  background-size: 260px 140px;
+  opacity: 0.28;
+  filter: drop-shadow(0 -2px 8px rgba(0, 0, 0, 0.7));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='140' viewBox='0 0 260 140'%3E%3Crect width='260' height='140' fill='none'/%3E%3Cg fill='%23040b12'%3E%3Cpath d='M-10 140 L40 55 L70 100 L95 60 L125 115 L150 70 L180 120 L210 75 L235 115 L260 60 L290 140 Z' /%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* Header Tags */
@@ -26,17 +64,24 @@
   transform: translateX(-50%);
   display: flex;
   gap: 15px;
+  z-index: 3;
 }
 
 .tag-box {
-  background: rgba(0, 0, 0, 0.8);
+  background: radial-gradient(circle at top, rgba(30, 30, 30, 0.96), rgba(5, 5, 5, 0.9));
   border: 2px solid #ffcc00;
   padding: 5px 20px;
   font-weight: 800;
   font-size: 1.2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 .gold-text { color: #ffcc00; }
+
+.tag-box.gold-text {
+  animation: badge-bob 6s ease-in-out infinite;
+}
 
 /* Side Panels (Controls & Leaderboard) */
 .main-layout {
@@ -45,14 +90,23 @@
   gap: 40px;
   width: 90%;
   max-width: 1200px;
+   z-index: 2;
 }
 
 .side-container {
-  background: rgba(0, 0, 0, 0.4);
+  background: radial-gradient(circle at top, rgba(20, 30, 40, 0.96), rgba(4, 8, 16, 0.9));
   border: 2px solid rgba(255, 204, 0, 0.5);
   padding: 20px;
   width: 220px;
   height: 350px;
+  border-radius: 18px;
+  box-shadow:
+    0 22px 45px rgba(0, 0, 0, 0.85),
+    0 0 26px rgba(255, 255, 255, 0.06),
+    inset 0 4px 18px rgba(255, 255, 255, 0.12),
+    inset 0 -4px 16px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  overflow: hidden;
 }
 
 .container-title {
@@ -61,6 +115,29 @@
   margin-top: 0;
   padding-bottom: 5px;
   font-size: 1.4rem;
+  text-shadow: 0 0 12px rgba(255, 204, 0, 0.55);
+  position: relative;
+  padding-left: 26px;
+}
+
+.controls .container-title::before {
+  content: "🎮";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.leaderboard .container-title::before {
+  content: "🏆";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  opacity: 0.9;
 }
 
 .control-label {
@@ -77,9 +154,31 @@
   text-align: center;
   border: 2px solid #ffcc00;
   padding: 30px 30px;
-  background: rgba(0, 0, 0, 0.2);
+  background: radial-gradient(circle at top, rgba(30, 20, 10, 0.98), rgba(8, 4, 2, 0.96));
   position: relative;
   margin-top: 30px;
+  border-radius: 20px;
+  box-shadow:
+    0 28px 60px rgba(0, 0, 0, 0.95),
+    0 0 32px rgba(255, 255, 255, 0.05),
+    inset 0 4px 24px rgba(255, 255, 255, 0.15),
+    inset 0 -6px 28px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.center-box::before {
+  content: "";
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  width: 65%;
+  height: 58%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 50% 35%, rgba(255, 235, 180, 0.36) 0, rgba(255, 180, 110, 0.14) 38%, transparent 72%);
+  filter: blur(5px);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Go Back Button */
@@ -95,6 +194,8 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.7);
 }
 
 .go-back-btn:hover {
@@ -109,9 +210,32 @@
   font-weight: 900;
   margin: 0 0 40px 0;
   letter-spacing: -2px;
-  -webkit-text-stroke: 2px #000;
-  text-shadow: 4px 4px 0px #ed4242;
-  transition: all 0.4s ease;
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.9);
+  background-image: linear-gradient(120deg, #fdf4c8 0%, #ffd67a 25%, #ffbb55 45%, #ffe8c0 65%, #fff7dd 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow:
+    0 0 30px rgba(255, 230, 160, 0.7),
+    0 0 60px rgba(255, 150, 120, 0.35),
+    0 14px 32px rgba(0, 0, 0, 0.9);
+  transition: transform 0.4s ease, text-shadow 0.4s ease, opacity 0.4s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.game-logo::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  left: -20%;
+  width: 60%;
+  height: 120%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.18) 45%, transparent 90%);
+  transform: translateX(-120%) skewX(-20deg);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: logo-glint 7s ease-in-out infinite;
 }
 
 .game-logo.compact {
@@ -128,47 +252,85 @@
 }
 
 .mode-button {
-  background: #ffcc00;
-  color: #111;
-  border: none;
+  background: linear-gradient(135deg, #ffda6a 0%, #ffb840 40%, #ffea8a 100%);
+  color: #1a1205;
+  border: 1px solid rgba(255, 248, 200, 0.6);
   padding: 15px 50px;
   font-size: 2rem;
   font-weight: 900;
   cursor: pointer;
   transform: skewX(-15deg);
-  transition: all 0.2s ease;
+  transition: transform 0.15s ease-out, box-shadow 0.18s ease-out, background 0.18s ease-out, filter 0.18s ease-out;
   position: relative;
+  border-radius: 18px;
+  box-shadow:
+    0 18px 30px rgba(0, 0, 0, 0.85),
+    0 0 18px rgba(255, 230, 170, 0.45);
+}
+
+.mode-button::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 5px;
+  height: 40%;
+  border-radius: 14px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.02));
+  opacity: 0.65;
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 .mode-button:hover {
-  background: #ffd700;
-  transform: skewX(-15deg) translateY(-2px);
-  box-shadow: 0 6px 0 #cc9900;
+  transform: skewX(-15deg) translateY(-2px) scale(1.04);
+  box-shadow:
+    0 24px 34px rgba(0, 0, 0, 0.9),
+    0 0 28px rgba(255, 240, 210, 0.7);
+  filter: brightness(1.05);
 }
 
 .mode-button:active {
-  transform: skewX(-15deg) translateY(2px);
-  box-shadow: 0 2px 0 #cc9900;
+  transform: skewX(-15deg) translateY(2px) scale(0.97);
+  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.8);
+  filter: brightness(0.97);
 }
 
 .campaign-btn {
-  background: #ff4444;
+  background: linear-gradient(135deg, #ff5a4a 0%, #d81424 45%, #ff9084 100%);
   color: #fff;
 }
 
 .campaign-btn:hover {
-  background: #ff6666;
-  box-shadow: 0 6px 0 #cc0000;
+  background: linear-gradient(135deg, #ff7666 0%, #f02332 45%, #ffb0a6 100%);
 }
 
 .freeplay-btn {
-  background: #44ff44;
-  color: #111;
+  background: linear-gradient(135deg, #3ad668 0%, #14893d 45%, #7dffad 100%);
+  color: #041107;
 }
 
 .freeplay-btn:hover {
-  background: #66ff66;
-  box-shadow: 0 6px 0 #00cc00;
+  background: linear-gradient(135deg, #53f283 0%, #1a9b48 45%, #a8ffd0 100%);
+}
+
+.side-container.leaderboard .leader-entry:first-child {
+  position: relative;
+  color: #ffe8b0;
+  text-shadow: 0 0 10px rgba(255, 220, 150, 0.7);
+  animation: leader-pulse 4.5s ease-in-out infinite;
+}
+
+.side-container.leaderboard .leader-entry:first-child::after {
+  content: "";
+  position: absolute;
+  top: -35%;
+  bottom: -35%;
+  width: 2px;
+  left: -10%;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.6), transparent);
+  opacity: 0;
+  animation: leader-shimmer 9s ease-in-out infinite;
 }
 
 /* Level Grid */
@@ -264,13 +426,22 @@ max-height: 300px; /* Adjust this value to your preferred height */
 .snowflake:nth-child(even) { animation-duration: 12s; left: 80%; }
 
 /* Snow & Cane Containers */
+.snow-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .particle {
   position: absolute;
   top: -10%;
   user-select: none;
   pointer-events: none;
-  z-index: 1001;
-  animation: fall linear infinite, sway ease-in-out infinite;
+  animation-name: fall, sway;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
 }
 
 .snowflake {
@@ -283,7 +454,42 @@ max-height: 300px; /* Adjust this value to your preferred height */
   font-size: 1.5rem;
   font-weight: bold;
   text-shadow: 1px 1px 0px #fff;
-  animation: fall linear infinite, rotate-cane linear infinite;
+  animation-name: fall, rotate-cane;
+  animation-timing-function: linear, linear;
+  animation-iteration-count: infinite, infinite;
+}
+
+.flake-rotating {
+  animation-name: fall, sway, flake-rotate;
+  animation-timing-function: linear, ease-in-out, linear;
+  animation-iteration-count: infinite, infinite, infinite;
+}
+
+.snow-layer-back {
+  z-index: 1;
+  opacity: 0.45;
+}
+
+.snow-layer-mid {
+  z-index: 2;
+  opacity: 0.7;
+}
+
+.snow-layer-front {
+  z-index: 3;
+  opacity: 1;
+}
+
+.center-drifter {
+  position: absolute;
+  top: -18%;
+  left: 46%;
+  font-size: 2.6rem;
+  color: white;
+  opacity: 0.12;
+  filter: blur(0.5px);
+  pointer-events: none;
+  animation: drifter-fall 28s linear infinite;
 }
 
 @keyframes fall {
@@ -299,6 +505,107 @@ max-height: 300px; /* Adjust this value to your preferred height */
 @keyframes rotate-cane {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@keyframes flake-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes drifter-fall {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.18;
+  }
+  50% {
+    transform: translate3d(6vw, 65vh, 0);
+    opacity: 0.18;
+  }
+  90% {
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(10vw, 110vh, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes logo-glint {
+  0% {
+    transform: translateX(-130%) skewX(-20deg);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(150%) skewX(-20deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(150%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+@keyframes badge-bob {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.9), 0 0 26px rgba(255, 240, 200, 0.22);
+  }
+}
+
+@keyframes border-sparkle {
+  0%, 60% {
+    opacity: 0;
+    background-position: -40px -40px;
+  }
+  70% {
+    opacity: 0.5;
+    background-position: 10% 0;
+  }
+  85% {
+    opacity: 0;
+    background-position: 40% 20%;
+  }
+  100% {
+    opacity: 0;
+    background-position: 40% 20%;
+  }
+}
+
+@keyframes leader-pulse {
+  0%, 100% {
+    text-shadow: 0 0 6px rgba(255, 220, 150, 0.6);
+  }
+  50% {
+    text-shadow: 0 0 14px rgba(255, 240, 200, 0.95);
+  }
+}
+
+@keyframes leader-shimmer {
+  0%, 70% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  80% {
+    opacity: 0.6;
+    transform: translateX(130%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(130%);
+  }
 }
 
 /* Create a reusable class for the candy cane border */
@@ -320,6 +627,45 @@ max-height: 300px; /* Adjust this value to your preferred height */
   
   /* Slightly darker background helps the candy cane pop */
   background: rgba(0, 0, 0, 0.7) !important; 
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.85),
+    0 0 26px rgba(255, 255, 255, 0.08),
+    inset 0 5px 20px rgba(255, 255, 255, 0.14),
+    inset 0 -6px 24px rgba(0, 0, 0, 0.75);
+}
+
+.candy-cane-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: 52px 52px;
+  background-position: top 6px left 6px, top 6px right 6px, bottom 6px left 6px, bottom 6px right 6px;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cg fill='none' stroke='%23a8ffb3' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 20 L18 12 L13 23 L24 16 L19 27 L30 20'/%3E%3Cpath d='M10 30 L20 24 L16 34 L26 28 L22 38 L32 32'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cg fill='none' stroke='%23a8ffb3' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 20 L18 12 L13 23 L24 16 L19 27 L30 20'/%3E%3Cpath d='M10 30 L20 24 L16 34 L26 28 L22 38 L32 32'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cg fill='none' stroke='%23a8ffb3' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 20 L18 12 L13 23 L24 16 L19 27 L30 20'/%3E%3Cpath d='M10 30 L20 24 L16 34 L26 28 L22 38 L32 32'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cg fill='none' stroke='%23a8ffb3' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 20 L18 12 L13 23 L24 16 L19 27 L30 20'/%3E%3Cpath d='M10 30 L20 24 L16 34 L26 28 L22 38 L32 32'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.candy-cane-border::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-image: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.32) 0, transparent 55%);
+  background-size: 34px 34px;
+  background-position: -40px -40px;
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: border-sparkle 11s ease-in-out infinite;
 }
 
 /* Optional: A "Frozen" Candy Cane for locked levels */

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import "./Minimap.css";
 
 export default function Minimap({ enemies, hand }) {
   const canvasRef = useRef(null);
@@ -112,37 +113,15 @@ export default function Minimap({ enemies, hand }) {
   }, [enemies, hand]);
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 10,
-        left: 10,
-        zIndex: 100,
-        background: "rgba(0, 0, 0, 0.5)",
-        borderRadius: "12px",
-        padding: "8px",
-        border: "2px solid rgba(0, 255, 255, 0.4)",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-      }}
-    >
+    <div className="minimap-shell">
       <canvas
         ref={canvasRef}
         width={160}
         height={160}
-        style={{
-          display: "block",
-        }}
+        className="minimap-canvas"
       />
       <div
-        style={{
-          color: "#00ffff",
-          fontSize: "10px",
-          textAlign: "center",
-          marginTop: "4px",
-          fontWeight: "600",
-          textTransform: "uppercase",
-          letterSpacing: "0.5px",
-        }}
+        className="minimap-label"
       >
         Minimap
       </div>

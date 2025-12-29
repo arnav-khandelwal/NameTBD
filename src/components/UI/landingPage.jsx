@@ -1,8 +1,77 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./landingPage.css";
 
 export default function LandingPage({  onFreePlayStart }) {
   const [showCampaign, setShowCampaign] = useState(false);
+  const audioContextRef = useRef(null);
+
+  const ensureAudioContext = () => {
+    if (typeof window === "undefined") return null;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioCtx();
+    }
+    return audioContextRef.current;
+  };
+
+  const playHoverBell = async () => {
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch {
+        return;
+      }
+    }
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(1200, now);
+
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(0.06, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.3);
+  };
+
+  const playClickThump = async () => {
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch {
+        return;
+      }
+    }
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.18);
+
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(0.08, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.25);
+  };
 
   // Mock leaderboard data based on the image
   const leaderboard = [
@@ -22,24 +91,51 @@ export default function LandingPage({  onFreePlayStart }) {
       {/* Snowfall background effect */}
     {/* Christmas Particle Background */}
 <div className="snow-container">
-  {[...Array(50)].map((_, i) => {
-    // Every 5th particle is a candy cane, others are snowflakes
+  {[...Array(60)].map((_, i) => {
     const isCandyCane = i % 5 === 0;
+    const layerClass =
+      i % 3 === 0
+        ? "snow-layer-back"
+        : i % 3 === 1
+        ? "snow-layer-mid"
+        : "snow-layer-front";
+
+    const baseDuration =
+      layerClass === "snow-layer-back"
+        ? 24
+        : layerClass === "snow-layer-mid"
+        ? 17
+        : 11;
+
+    const sizeBase =
+      layerClass === "snow-layer-back"
+        ? 0.6
+        : layerClass === "snow-layer-mid"
+        ? 0.9
+        : 1.1;
+
+    const isRotatingFlake = !isCandyCane && i % 4 === 0;
+
     return (
-      <div 
-        key={i} 
-        className={`particle ${isCandyCane ? 'candy-cane-particle' : 'snowflake'}`}
+      <div
+        key={i}
+        className={`particle ${
+          isCandyCane ? "candy-cane-particle" : "snowflake"
+        } ${layerClass} ${isRotatingFlake ? "flake-rotating" : ""}`}
         style={{
           left: `${Math.random() * 100}%`,
           animationDelay: `${Math.random() * 10}s`,
-          animationDuration: `${10 + Math.random() * 10}s`,
-          fontSize: isCandyCane ? `${1 + Math.random() * 1}rem` : `${0.5 + Math.random() * 1}rem`
+          animationDuration: `${baseDuration + Math.random() * 4}s`,
+          fontSize: isCandyCane
+            ? `${sizeBase + Math.random() * 0.6}rem`
+            : `${sizeBase - 0.2 + Math.random() * 0.8}rem`,
         }}
       >
-        {isCandyCane ? '🎁' : '❄'}
+        {isCandyCane ? "🎁" : "❄"}
       </div>
     );
   })}
+  <div className="center-drifter">❄</div>
 </div>
 
       {/* Top Header Tags */}
@@ -76,13 +172,21 @@ export default function LandingPage({  onFreePlayStart }) {
             <div className="button-wrapper">
               <button 
                 className="mode-button campaign-btn"
-                onClick={() => setShowCampaign(true)}
+                onMouseEnter={playHoverBell}
+                onClick={() => {
+                  setShowCampaign(true);
+                  playClickThump();
+                }}
               >
                 CAMPAIGN
               </button>
               <button 
                 className="mode-button freeplay-btn"
-                onClick={onFreePlayStart}
+                onMouseEnter={playHoverBell}
+                onClick={() => {
+                  playClickThump();
+                  onFreePlayStart && onFreePlayStart();
+                }}
               >
                 FREEPLAY
               </button>
