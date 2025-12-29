@@ -49,6 +49,8 @@ export default function World({ hand, enemies, setScore }) {
             position={enemy.position}
             image={enemy.image}
             size={enemy.size}
+            health={enemy.health}
+            maxHealth={enemy.maxHealth}
           />
         ))}
 
