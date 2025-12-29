@@ -85,13 +85,13 @@
 /* Go Back Button */
 .go-back-btn {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 10px;
+  left: 10px;
   background: rgba(255, 255, 255, 0.2);
   color: #ffcc00;
   border: 2px solid #ffcc00;
-  padding: 8px 20px;
-  font-size: 1rem;
+  padding: 5px 15px;
+  font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -99,12 +99,10 @@
 
 .go-back-btn:hover {
   background: rgba(255, 204, 0, 0.3);
-  transform: translateX(-3px);
+  
 }
 
-.go-back-btn:active {
-  transform: translateX(-1px);
-}
+
 
 .game-logo {
   font-size: 8rem;
