@@ -4,8 +4,7 @@
   inset: 0;
   width: 100%;
   height: 100vh;
-  background: radial-gradient(circle at top, rgba(32, 62, 120, 0.55), rgba(6, 10, 24, 0.78)),
-              url('/src/backgrounds/assets/homeBg_1.jpg');
+  background: radial-gradient(circle at top, rgba(32, 62, 120, 0.55), rgba(6, 10, 24, 0.78));
   background-size: cover;
   background-position: center;
   background-attachment: fixed;

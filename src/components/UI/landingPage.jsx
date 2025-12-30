@@ -2,16 +2,16 @@ import React, { useState, useRef, useEffect } from "react";
 import "./landingPage.css";
 import { FaGamepad, FaBell, FaTrophy, FaStar, FaTree, FaSnowflake, FaVolumeUp, FaVolumeMute, FaHandPaper, FaHandRock } from "react-icons/fa";
 import { GiPineTree, GiSparkles, GiHandOk } from "react-icons/gi";
-import { IoSnowSharp, IoSettings, IoHandLeftSharp, IoHandRightSharp, IoHelpCircle } from "react-icons/io5";
+import { IoSnowSharp, IoSettings, IoHelpCircle } from "react-icons/io5";
 import { HiArrowSmLeft, HiArrowSmRight } from "react-icons/hi";
 import { MdPanTool } from "react-icons/md";
-import { BiTargetLock } from "react-icons/bi";
 import Settings from "./Settings";
 import GameHelpModal from "./GameHelpModal";
 import { getUserData } from "../../firebase/customAuth";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
-
+import cornerWreath from "../../assets/backgrounds/cornerWreath.png";
+import landingPageSong from "../../assets/audio/landingpagesong.mp3";
 export default function LandingPage({  onFreePlayStart, onMusicControlReady }) {
   const [showCampaign, setShowCampaign] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -318,10 +318,10 @@ export default function LandingPage({  onFreePlayStart, onMusicControlReady }) {
       <div className="main-layout">
         {/* Left: Controls */}
         <div className="side-container controls">
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-right-wreath"/>
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-left-wreath"/>
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-left-wreath"/>
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-right-wreath"/>
+        <img src={cornerWreath} alt="" className="top-right-wreath"/>
+        <img src={cornerWreath} alt="" className="top-left-wreath"/>
+        <img src={cornerWreath} alt="" className="bot-left-wreath"/>
+        <img src={cornerWreath} alt="" className="bot-right-wreath"/>
           <h2 className="container-title">
             <FaGamepad className="title-icon" />
             CONTROLS
@@ -374,10 +374,10 @@ export default function LandingPage({  onFreePlayStart, onMusicControlReady }) {
 
         {/* Center: Main Game UI */}
         <div className="center-box">
-           <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-right-wreath"/>
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-left-wreath"/>
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-left-wreath"/>
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-right-wreath"/>
+           <img src={cornerWreath} alt="" className="top-right-wreath"/>
+        <img src={cornerWreath} alt="" className="top-left-wreath"/>
+        <img src={cornerWreath} alt="" className="bot-left-wreath"/>
+        <img src={cornerWreath} alt="" className="bot-right-wreath"/>
           
           {showCampaign && (
             <button 
@@ -473,10 +473,10 @@ export default function LandingPage({  onFreePlayStart, onMusicControlReady }) {
 
         {/* Right: Leaderboard */}
         <div className="side-container leaderboard">
-          <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-right-wreath"/>
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="top-left-wreath"/>
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-left-wreath"/>
-        <img src="/src/assets/backgrounds/cornerWreath.png" alt="" className="bot-right-wreath"/>
+          <img src={cornerWreath} alt="" className="top-right-wreath"/>
+        <img src={cornerWreath} alt="" className="top-left-wreath"/>
+        <img src={cornerWreath} alt="" className="bot-left-wreath"/>
+        <img src={cornerWreath} alt="" className="bot-right-wreath"/>
           <h2 className="container-title">
             <FaTrophy className="title-icon" />
             <FaStar className="title-icon-accent" />
@@ -499,7 +499,7 @@ export default function LandingPage({  onFreePlayStart, onMusicControlReady }) {
       {/* Background Music */}
       <audio 
         ref={bgMusicRef}
-        src="/src/assets/audio/landingpagesong.mp3"
+        src={landingPageSong}
         loop
         preload="auto"
         autoPlay

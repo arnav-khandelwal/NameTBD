@@ -5,6 +5,10 @@ import { FaHandPaper } from "react-icons/fa";
 import { GiHandOk } from "react-icons/gi";
 import { HiArrowSmLeft, HiArrowSmRight } from "react-icons/hi";
 import "./GameHelpModal.css";
+import gremlinImg from "../../assets/enemy_sprites/gremlin.png";
+import ghostImg from "../../assets/enemy_sprites/ghostImg.png";
+import krampusImg from "../../assets/enemy_sprites/krampus.png";
+import orcBossImg from "../../assets/enemy_sprites/orcBoss.png";
 
 export default function GameHelpModal({ onClose }) {
   return (
@@ -50,7 +54,7 @@ export default function GameHelpModal({ onClose }) {
           
           <div className="help-enemy-item">
             <div className="help-enemy-badge gremlin">
-              <img src="/src/assets/enemy_sprites/gremlin.png" alt="Gremlin" className="help-enemy-img" />
+              <img src={gremlinImg} alt="Gremlin" className="help-enemy-img" />
             </div>
             <div className="help-enemy-details">
               <strong>Gremlin</strong>
@@ -61,7 +65,7 @@ export default function GameHelpModal({ onClose }) {
           
           <div className="help-enemy-item">
             <div className="help-enemy-badge ghost">
-              <img src="/src/assets/enemy_sprites/ghostImg.png" alt="Ghost" className="help-enemy-img" />
+              <img src={ghostImg} alt="Ghost" className="help-enemy-img" />
             </div>
             <div className="help-enemy-details">
               <strong>Ghost</strong>
@@ -72,7 +76,7 @@ export default function GameHelpModal({ onClose }) {
           
           <div className="help-enemy-item">
             <div className="help-enemy-badge krampus">
-              <img src="/src/assets/enemy_sprites/krampus.png" alt="Krampus" className="help-enemy-img" />
+              <img src={krampusImg} alt="Krampus" className="help-enemy-img" />
             </div>
             <div className="help-enemy-details">
               <strong>Krampus</strong>
@@ -83,7 +87,7 @@ export default function GameHelpModal({ onClose }) {
           
           <div className="help-enemy-item">
             <div className="help-enemy-badge boss">
-              <img src="/src/assets/enemy_sprites/orcBoss.png" alt="BOSS" className="help-enemy-img" />
+              <img src={orcBossImg} alt="BOSS" className="help-enemy-img" />
             </div>
             <div className="help-enemy-details">
               <strong>BOSS</strong>
