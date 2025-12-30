@@ -54,7 +54,7 @@ export default function GameHelpModal({ onClose }) {
           
           <div className="help-enemy-item">
             <div className="help-enemy-badge gremlin">
-              <img src={gremlinImg} alt="Gremlin" className="help-enemy-img" />
+              <img src={ghostImg} alt="Gremlin" className="help-enemy-img" />
             </div>
             <div className="help-enemy-details">
               <strong>Ghost</strong>
@@ -65,7 +65,7 @@ export default function GameHelpModal({ onClose }) {
           
           <div className="help-enemy-item">
             <div className="help-enemy-badge ghost">
-              <img src={ghostImg} alt="Ghost" className="help-enemy-img" />
+              <img src={gremlinImg} alt="Ghost" className="help-enemy-img" />
             </div>
             <div className="help-enemy-details">
               <strong>Gremlin</strong>

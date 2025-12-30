@@ -159,6 +159,7 @@ export function useAudioAnalyzer(audioUrl) {
     play,
     pause,
     isPlaying,
+    audioRef,
     currentAmplitude,
     averageAmplitude: averageAmplitudeRef.current,
     beatDetected,

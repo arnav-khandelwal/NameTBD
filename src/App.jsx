@@ -60,13 +60,13 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
   useEffect(() => {
     if (gameOver && userBestScore !== null && score > userBestScore) {
       setIsNewHighScore(true);
-      
+
       // Update in Firebase
       const storedUserData = localStorage.getItem('beatfall_user_data');
       if (storedUserData) {
         const userData = JSON.parse(storedUserData);
         const username = userData.username;
-        
+
         updateUserProgress(username, undefined, score).then((result) => {
           if (result.success) {
             // Update localStorage
@@ -147,7 +147,7 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
     if (storedSettings) {
       settings = JSON.parse(storedSettings);
     }
-    
+
     if (settings.hapticsMuted) return;
     const ctx = ensureAudioContext();
     if (!ctx) return;
@@ -231,10 +231,10 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
     setPlayerHp(MAX_PLAYER_HEALTH);
     setScore(0);
     setIsNewHighScore(false);
-    // Restart audio
-    if (audio && selectedSong) {
-      audio.restart?.();
-    }
+    const a = audio.audioRef.current;
+    a.pause();        // stop if playing
+    a.currentTime = 0; 
+    a.play();
   };
 
   return (
@@ -499,14 +499,14 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
             Final Score: {score}
           </p>
 
-             {userBestScore !== null && (
-              <p className="game-logo" style={{ fontSize: "24px", marginBottom: "30px" }}>
-                Your High Score: {isNewHighScore ? score : userBestScore}
-              </p>
-            )}
+          {userBestScore !== null && (
+            <p className="game-logo" style={{ fontSize: "24px", marginBottom: "30px" }}>
+              Your High Score: {isNewHighScore ? score : userBestScore}
+            </p>
+          )}
 
 
-          
+
           <button className="mode-button"
             onClick={() => {
               playClickSound();
