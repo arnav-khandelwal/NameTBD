@@ -13,32 +13,19 @@ export default function HandCanvas({ landmarks, fire, isGameActive }) {
   const SHOW_HAND = false;
   useEffect(() => {
     if (!isGameActive) return;
+    if (!SHOW_HAND) return; 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     if (!landmarks) return;
 
     const FIRE_COLOR = "#ffcc00";
 
     ctx.lineWidth = 2;
     if (SHOW_HAND) {
-
-
       ctx.strokeStyle = fire ? FIRE_COLOR : "#333";
-
-      HAND_CONNECTIONS.forEach(([a, b]) => {
-        const p1 = landmarks[a];
-        const p2 = landmarks[b];
-
-        ctx.beginPath();
-        ctx.moveTo((1 - p1.x) * canvas.width, p1.y * canvas.height);
-        ctx.lineTo((1 - p2.x) * canvas.width, p2.y * canvas.height);
-        ctx.stroke();
-      });
 
       landmarks.forEach((p, i) => {
         let color = "#555";
