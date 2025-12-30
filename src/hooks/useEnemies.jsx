@@ -6,16 +6,16 @@ import elfBoss from "../assets/enemy_sprites/elfBoss.png"
 import reaperBoss from "../assets/enemy_sprites/reaperBoss.png"
 import orcBoss from "../assets/enemy_sprites/orcBoss.png"
 // Use paths relative to your public folder or src/assets
-const ENEMY_IMAGES = [krampusImg, gremlinImg,ghostImg];
-const BOSS_IMAGES=[elfBoss,reaperBoss,orcBoss];
+const ENEMY_IMAGES = [krampusImg, gremlinImg, ghostImg];
+const BOSS_IMAGES = [elfBoss, reaperBoss, orcBoss];
 const ENEMY_SPEED = 0.045; // 3D units per frame
 const SPAWN_RADIUS = 15; // Distance from center where enemies spawn
 const KILL_RADIUS = 2; // Distance at which enemies die (reach player)
 
-export function useEnemies(beatDetected, isPlaying, onEnemySpawn) {
+export function useEnemies(beatDetected, isPlaying, onEnemySpawn , onEnemyHitPlayer) {
   const [enemies, setEnemies] = useState([]);
   const nextIdRef = useRef(0);
-const lastBossSpawnRef = useRef(Date.now());// Tracks time for the 1-minute boss
+  const lastBossSpawnRef = useRef(Date.now());// Tracks time for the 1-minute boss
   // Helper to spawn a boss
   const spawnBoss = () => {
     lastBossSpawnRef.current = Date.now();
@@ -23,9 +23,9 @@ const lastBossSpawnRef = useRef(Date.now());// Tracks time for the 1-minute boss
       const angle = Math.random() * Math.PI * 2;
       const spawnX = Math.cos(angle) * SPAWN_RADIUS;
       const spawnZ = Math.sin(angle) * SPAWN_RADIUS;
-      
+
       const bossImg = BOSS_IMAGES[Math.floor(Math.random() * BOSS_IMAGES.length)];
-      
+
       const bossEnemy = {
         id: nextIdRef.current++,
         position: [spawnX, 0.6, spawnZ], // Bosses spawn a bit higher/grounded
@@ -37,7 +37,7 @@ const lastBossSpawnRef = useRef(Date.now());// Tracks time for the 1-minute boss
         maxHealth: 500,
         isBoss: true          // Flag for potential special effects
       };
-      
+
       if (onEnemySpawn) onEnemySpawn(0.6);
       return [...prev, bossEnemy];
     });
@@ -46,7 +46,7 @@ const lastBossSpawnRef = useRef(Date.now());// Tracks time for the 1-minute boss
   // 1. Minute Timer for Boss
   useEffect(() => {
     if (!isPlaying) return;
-    
+
 
     const bossCheckInterval = setInterval(() => {
       const now = Date.now();
@@ -59,17 +59,17 @@ const lastBossSpawnRef = useRef(Date.now());// Tracks time for the 1-minute boss
     return () => clearInterval(bossCheckInterval);
   }, [isPlaying]);
 
-const damageEnemy = (id, dmg) => {
-  setEnemies(prev =>
-    prev
-      .map(e =>
-        e.id === id
-          ? { ...e, health: e.health - dmg }
-          : e
-      )
-      .filter(e => e.health > 0)
-  );
-};
+  const damageEnemy = (id, dmg) => {
+    setEnemies(prev =>
+      prev
+        .map(e =>
+          e.id === id
+            ? { ...e, health: e.health - dmg }
+            : e
+        )
+        .filter(e => e.health > 0)
+    );
+  };
 
   // 1. Spawn enemy on beat - spawn in a circle around the player
   useEffect(() => {
@@ -114,7 +114,7 @@ const damageEnemy = (id, dmg) => {
           direction: [normalizedDirX, 0, normalizedDirZ], // Normalized direction towards center
           type: randomImg.split("/").pop().replace(".png", ""),
           image: randomImg,
-          size: isKrampus ? 1.2 : isgremlin ? 1 :0.9,
+          size: isKrampus ? 1.2 : isgremlin ? 1 : 0.9,
           health: isKrampus ? 75 : isgremlin ? 50 : 25,
           maxHealth: isKrampus ? 75 : isgremlin ? 50 : 25,
         };
@@ -147,7 +147,14 @@ const damageEnemy = (id, dmg) => {
           .filter(enemy => {
             const dx = enemy.position[0];
             const dz = enemy.position[2];
-            return Math.sqrt(dx * dx + dz * dz) > KILL_RADIUS;
+            const dist = Math.sqrt(dx * dx + dz * dz);
+            if (dist <= KILL_RADIUS) {
+              onEnemyHitPlayer?.(enemy);
+              return false;
+            }
+
+            return true;
+
           })
       );
       raf = requestAnimationFrame(update);
@@ -157,5 +164,5 @@ const damageEnemy = (id, dmg) => {
     return () => cancelAnimationFrame(raf);
   }, [isPlaying]);
 
-  return { enemies , damageEnemy};
+  return { enemies, damageEnemy };
 }

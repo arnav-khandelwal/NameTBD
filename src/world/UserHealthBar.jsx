@@ -1,13 +1,14 @@
 
 import "../components/UI/HealthBar.css";
 
-export default function HealthBar({ hp }) {
-  // Determine color based on health percentage
+export default function HealthBar({ hp , maxHp }) {
+  const ratio = Math.max(0, hp / maxHp);
   const getHealthColor = () => {
-    if (hp > 60) return "#2dbf1f"; // Green
-    if (hp > 30) return "#ffcc00"; // Yellow
-    return "#ff3333";              // Red
+    if (hp > maxHp * 0.6) return "#2dbf1f"; // green
+    if (hp > maxHp * 0.3) return "#ffcc00"; // yellow
+    return "#ff3333";                       // red
   };
+
 
   return (
     <div className="health-container">
@@ -15,13 +16,12 @@ export default function HealthBar({ hp }) {
       <div className="bar-wrapper">
         <div 
           className="bar-fill" 
-          style={{ 
-            width: `${hp}%`, 
+          style={{
+            transform: `scaleX(${ratio})`,
             backgroundColor: getHealthColor(),
-            boxShadow: `0 0 15px ${getHealthColor()}`
+            boxShadow: `0 0 12px ${getHealthColor()}`,
           }}
         />
-        {/* Background segments for a "blocky" arcade look */}
         <div className="bar-segments"></div>
       </div>
     </div>

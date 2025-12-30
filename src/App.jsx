@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback,useEffect } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { IoMusicalNotes, IoStop, IoHome } from "react-icons/io5";
 import { useHandInput } from "./hooks/useHandInput";
 import { useAudioAnalyzer } from "./hooks/useAudioAnalyzer";
@@ -13,18 +13,17 @@ import "./components/UI/ScopeOverlay.css";
 import HealthBar from "./world/UserHealthBar";
 
 export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive }) {
-  const [playerHp, setPlayerHp] = useState(100); /*user's health */
+  const MAX_PLAYER_HEALTH=500
+  const [playerHp, setPlayerHp] = useState(MAX_PLAYER_HEALTH); /*user's health */
   // To avoid the "never used" error, a test effect:
-useEffect(() => {
-  console.log("Player HP system initialized at:", playerHp);
- 
-  setPlayerHp(100); 
-}, [playerHp]);
+  useEffect(() => {
+    console.log("Player HP system initialized at:", playerHp);
+  }, [playerHp]);
   const [hand, setHand] = useState({ active: false });
   const [internalShowSongSelector, setInternalShowSongSelector] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
   const [score, setScore] = useState(0);
-  
+
 
   // Use external control if provided, otherwise use internal state
   const showSongSelector = externalShowSongSelector !== undefined ? externalShowSongSelector : internalShowSongSelector;
@@ -43,13 +42,13 @@ useEffect(() => {
   // Callback to trigger strong pulse on enemy spawn
   const handleEnemySpawn = useCallback((spawnY) => {
     const NEON_COLORS = [
-  350, // deep christmas red
-  5,   // warm red
-  38,  // soft gold
-  48,  // champagne gold
-  100, // muted pine green (NOT pure green)
-  165  // teal-green (aurora vibe)
-];
+      350, // deep christmas red
+      5,   // warm red
+      38,  // soft gold
+      48,  // champagne gold
+      100, // muted pine green (NOT pure green)
+      165  // teal-green (aurora vibe)
+    ];
 
     pulsesRef.current.push({
       x: 0,
@@ -63,8 +62,15 @@ useEffect(() => {
     });
   }, []);
 
+  const handlePlayerDamage = useCallback((enemy) => {
+    const DAMAGE =
+      enemy.type === "krampus" ? 20 : "gremlin" ? 10 : "ghostImg" ? 5 : 50;
+
+    setPlayerHp(h => Math.max(0, h - DAMAGE));
+  }, []);
+
   // Enemy spawning system with strong pulse callback
-  const { enemies,damageEnemy} = useEnemies(audio.beatDetected, audio.isPlaying, handleEnemySpawn);
+  const { enemies, damageEnemy } = useEnemies(audio.beatDetected, audio.isPlaying, handleEnemySpawn, handlePlayerDamage);
 
   const handleSongSelect = (song) => {
     setSelectedSong(song);
@@ -73,7 +79,7 @@ useEffect(() => {
     if (onSongSelected) {
       onSongSelected();
     }
-    
+
     // Auto-play the selected song
     setTimeout(() => {
       audio.play();
@@ -97,6 +103,9 @@ useEffect(() => {
       onMainMenu();
     }
   };
+
+
+
   return (
     <>
       {/* Song Selection Modal */}
@@ -115,7 +124,7 @@ useEffect(() => {
         pulsesRef={pulsesRef}
       />
 
-      <World hand={hand} enemies={enemies} setScore={setScore} damageEnemy={damageEnemy}/>
+      <World hand={hand} enemies={enemies} setScore={setScore} damageEnemy={damageEnemy} />
 
       <HandCanvas isGameActive={isGameActive}
         landmarks={activeHand.landmarks}
@@ -123,17 +132,17 @@ useEffect(() => {
         fire={activeHand.fire}
       />
       {/*UserHealthBar*/}
-      <HealthBar hp={playerHp} /> 
-      <ScopeOverlay visible={activeHand.aim} fire={hand.fire}/>
+      <HealthBar hp={playerHp} maxHp={MAX_PLAYER_HEALTH}/>
+      <ScopeOverlay visible={activeHand.aim} fire={hand.fire} />
       {/* Top-right Controls */}
-      <div style={{ 
-        position: "fixed", 
-        top: 10, 
-        right: 10, 
-        zIndex: 100, 
-        display: "flex", 
-        flexDirection: "column", 
-        gap: "10px" 
+      <div style={{
+        position: "fixed",
+        top: 10,
+        right: 10,
+        zIndex: 100,
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px"
       }}>
         {/* Main Menu Button */}
         <button
@@ -272,22 +281,22 @@ useEffect(() => {
         </div>
       )}
       {isGameActive && <div
-  style={{
-    position: "fixed",
-    top: 10,
-    right: 90,
-    color: "white",
-    fontSize: "24px",
-    fontWeight: "bold",
-    zIndex: 9999,
-    background: "rgba(0,0,0,0.6)",
-    padding: "10px 16px",
-    borderRadius: "8px",
-  }}
->
-  Score: {score}
-</div>
-}
+        style={{
+          position: "fixed",
+          top: 10,
+          right: 90,
+          color: "white",
+          fontSize: "24px",
+          fontWeight: "bold",
+          zIndex: 9999,
+          background: "rgba(0,0,0,0.6)",
+          padding: "10px 16px",
+          borderRadius: "8px",
+        }}
+      >
+        Score: {score}
+      </div>
+      }
       {/* Minimap */}
       <Minimap enemies={enemies} hand={activeHand} />
     </>
