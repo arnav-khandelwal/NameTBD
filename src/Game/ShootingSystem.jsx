@@ -11,7 +11,7 @@ export default function ShootingSystem({
   const [lasers, setLasers] = useState([]);
   const lastShot = useRef(0);
 
-  const FIRE_RATE = 200; // ms
+  const FIRE_RATE = 100; // ms
   const DAMAGE = 25;
 
   useFrame(() => {
@@ -39,16 +39,16 @@ export default function ShootingSystem({
     if (enemy.health - DAMAGE <= 0) {
       let a;
       if(enemy.type==="gremlin"){
-        a=5;
-      }
-      else if (enemy.type==="krampus"){
         a=10;
       }
-      else if(enemy.type==="1"){
+      else if (enemy.type==="krampus"){
         a=15;
       }
+      else if(enemy.type==="ghostImg"){
+        a=5;
+      }
       else{
-        a=20;
+        a=35;
       }
       setScore(s => s + a);
     }

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import krampusImg from "../assets/enemy_sprites/krampus_new.png";
-import gremlinImg from "../assets/enemy_sprites/gremlin_new.png";
+import krampusImg from "../assets/enemy_sprites/krampus.png";
+import gremlinImg from "../assets/enemy_sprites/gremlin.png";
 import ghostImg from "../assets/enemy_sprites/ghostImg.png"
-import elfBoss from "../assets/enemy_sprites/elfBoss_1.png"
-import reaperBoss from "../assets/enemy_sprites/reaperBoss_1.png"
+import elfBoss from "../assets/enemy_sprites/elfBoss.png"
+import reaperBoss from "../assets/enemy_sprites/reaperBoss.png"
 import orcBoss from "../assets/enemy_sprites/orcBoss.png"
 // Use paths relative to your public folder or src/assets
 const ENEMY_IMAGES = [krampusImg, gremlinImg,ghostImg];
@@ -19,7 +19,6 @@ const lastBossSpawnRef = useRef(Date.now());// Tracks time for the 1-minute boss
   // Helper to spawn a boss
   const spawnBoss = () => {
     lastBossSpawnRef.current = Date.now();
-    
     setEnemies(prev => {
       const angle = Math.random() * Math.PI * 2;
       const spawnX = Math.cos(angle) * SPAWN_RADIUS;
@@ -33,7 +32,7 @@ const lastBossSpawnRef = useRef(Date.now());// Tracks time for the 1-minute boss
         direction: [-spawnX / SPAWN_RADIUS, 0, -spawnZ / SPAWN_RADIUS],
         type: "BOSS",
         image: bossImg,
-        size: 6,            // bigger than minions
+        size: 3,            // bigger than minions
         health: 500,          // 10x normal Krampus health (50 * 10)
         maxHealth: 500,
         isBoss: true          // Flag for potential special effects
@@ -108,15 +107,16 @@ const damageEnemy = (id, dmg) => {
         const normalizedDirX = dirX / length;
         const normalizedDirZ = dirZ / length;
         const isKrampus = randomImg === krampusImg;
+        const isgremlin = randomImg === gremlinImg;
         const newEnemy = {
           id: nextIdRef.current++,
           position: [spawnX, randomY, spawnZ], // [x, y, z] - spawn at radius
           direction: [normalizedDirX, 0, normalizedDirZ], // Normalized direction towards center
-          type: randomImg.split("/").pop().replace("_new.png", ""),
+          type: randomImg.split("/").pop().replace(".png", ""),
           image: randomImg,
-          size: isKrampus ? 1.2 : 0.9,
-          health: isKrampus ? 50 : 25,
-          maxHealth: isKrampus ? 50 : 25,
+          size: isKrampus ? 1.2 : isgremlin ? 1 :0.9,
+          health: isKrampus ? 75 : isgremlin ? 50 : 25,
+          maxHealth: isKrampus ? 75 : isgremlin ? 50 : 25,
         };
 
         if (onEnemySpawn) onEnemySpawn(randomY);
