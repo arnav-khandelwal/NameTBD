@@ -23,7 +23,7 @@ export function useAudioAnalyzer(audioUrl) {
   const lastBeatTimeRef = useRef(0);
   
   const CALIBRATION_DURATION = 8000; // 8 seconds
-  const BEAT_THRESHOLD = 2.0; // Current amplitude must be 2.0x average
+  const BEAT_THRESHOLD = 2.8; // Current amplitude must be 3.0x average
   const BEAT_COOLDOWN = 300; // 300ms betw een beats
   const LOW_FREQ_START = 0; // Start of low frequency range (index)
   const LOW_FREQ_END = 8; // End of low frequency range (index, ~150Hz at 2048 FFT)
