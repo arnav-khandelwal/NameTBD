@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { IoClose, IoVolumeHigh, IoVolumeMute, IoGameController, IoMusicalNotes } from "react-icons/io5";
+import { IoClose, IoVolumeHigh, IoVolumeMute, IoGameController, IoMusicalNotes, IoLogOut } from "react-icons/io5";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import { GiSoundWaves } from "react-icons/gi";
 import LoginModal from "./LoginModal";
+import LogoutModal from "./LogoutModal";
 import "./Settings.css";
 
 export default function Settings({ onClose, initialSettings, onSettingsChange }) {
@@ -12,6 +13,7 @@ export default function Settings({ onClose, initialSettings, onSettingsChange })
   const [mainMenuMuted, setMainMenuMuted] = useState(initialSettings.mainMenuMuted);
   const [hapticsMuted, setHapticsMuted] = useState(initialSettings.hapticsMuted || false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   
   const previousMainMenuVolumeRef = useRef(initialSettings.mainMenuVolume || 0.1);
@@ -186,22 +188,23 @@ export default function Settings({ onClose, initialSettings, onSettingsChange })
 
   const handleLoginClick = () => {
     playClickSound();
-    if (currentUser) {
-      // User is logged in, show logout confirmation or profile
-      const confirmLogout = confirm(`Logged in as ${currentUser.username}. Do you want to logout?`);
-      if (confirmLogout) {
-        localStorage.removeItem('beatfall_username');
-        setCurrentUser(null);
-      }
-    } else {
-      // User is not logged in, show login modal
-      setShowLoginModal(true);
-    }
+    setShowLoginModal(true);
+  };
+
+  const handleLogoutClick = () => {
+    playClickSound();
+    setShowLogoutModal(true);
   };
 
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
     setShowLoginModal(false);
+  };
+
+  const handleLogoutConfirm = () => {
+    localStorage.removeItem('beatfall_username');
+    setCurrentUser(null);
+    setShowLogoutModal(false);
   };
 
   return (
@@ -299,15 +302,29 @@ export default function Settings({ onClose, initialSettings, onSettingsChange })
             </div>
           </div>
 
-          {/* Login Button */}
+          {/* Login/Logout Button */}
           <div className="settings-footer">
-            <button 
-              className="login-button" 
-              onClick={handleLoginClick}
-              onMouseEnter={playHoverSound}
-            >
-              {currentUser ? `Logged in as ${currentUser.username}` : 'Log In to Save Progress'}
-            </button>
+            {currentUser ? (
+              <div className="logout-section">
+                <button 
+                  className="logout-button" 
+                  onClick={handleLogoutClick}
+                  onMouseEnter={playHoverSound}
+                >
+                  <IoLogOut />
+                  Log Out
+                </button>
+                <span className="logged-in-text">Logged in as {currentUser.username}</span>
+              </div>
+            ) : (
+              <button 
+                className="login-button" 
+                onClick={handleLoginClick}
+                onMouseEnter={playHoverSound}
+              >
+                Log In to Save Progress
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -317,6 +334,15 @@ export default function Settings({ onClose, initialSettings, onSettingsChange })
         <LoginModal 
           onClose={() => setShowLoginModal(false)} 
           onLoginSuccess={handleLoginSuccess}
+        />
+      )}
+
+      {/* Logout Modal */}
+      {showLogoutModal && (
+        <LogoutModal 
+          username={currentUser?.username}
+          onConfirm={handleLogoutConfirm}
+          onClose={() => setShowLogoutModal(false)}
         />
       )}
     </>

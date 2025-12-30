@@ -1,0 +1,230 @@
+.logout-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2100;
+  padding: 20px;
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.logout-modal {
+  background: linear-gradient(145deg, #1e4d2b 0%, #2d5a3a 50%, #1e4d2b 100%);
+  border: 2px solid rgba(212, 175, 55, 0.4);
+  border-radius: 24px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 0 60px rgba(212, 175, 55, 0.15);
+  width: 100%;
+  max-width: 400px;
+  animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.logout-modal-header {
+  background: linear-gradient(135deg, rgba(184, 34, 34, 0.15) 0%, rgba(212, 175, 55, 0.1) 100%);
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.logout-modal-title {
+  font-family: "Arial", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #d4af37 0%, #f4e5a1 50%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));
+}
+
+.logout-close-button {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #d4af37;
+  font-size: 26px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.logout-close-button svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
+.logout-close-button:hover {
+  background: rgba(212, 175, 55, 0.25);
+  transform: scale(1.08);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  border-color: rgba(212, 175, 55, 0.5);
+}
+
+.logout-close-button:active {
+  transform: scale(0.95);
+}
+
+.logout-modal-content {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.logout-user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 12px;
+}
+
+.logout-user-icon {
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 50%;
+  color: #d4af37;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.logout-username {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f8f9fa;
+  letter-spacing: 0.3px;
+}
+
+.logout-subtext {
+  font-size: 13px;
+  color: rgba(248, 249, 250, 0.6);
+}
+
+.logout-message {
+  color: rgba(248, 249, 250, 0.85);
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0;
+}
+
+.logout-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.logout-cancel-button,
+.logout-confirm-button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.logout-cancel-button {
+  background: rgba(212, 175, 55, 0.15);
+  border: 2px solid rgba(212, 175, 55, 0.4);
+  color: #d4af37;
+}
+
+.logout-cancel-button:hover {
+  background: rgba(212, 175, 55, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.6);
+}
+
+.logout-cancel-button:active {
+  transform: translateY(0);
+}
+
+.logout-confirm-button {
+  background: linear-gradient(135deg, #b82222 0%, #8b1a1a 50%, #b82222 100%);
+  background-size: 200% 100%;
+  border: 2px solid rgba(212, 175, 55, 0.4);
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 4px 15px rgba(184, 34, 34, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+.logout-confirm-button svg {
+  font-size: 18px;
+}
+
+.logout-confirm-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 25px rgba(184, 34, 34, 0.4),
+    0 0 25px rgba(212, 175, 55, 0.3);
+  background-position: -100% 0;
+  border-color: rgba(212, 175, 55, 0.6);
+}
+
+.logout-confirm-button:active {
+  transform: translateY(0);
+}
