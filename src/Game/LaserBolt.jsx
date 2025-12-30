@@ -8,6 +8,7 @@ export default function LaserBolt({ id, onHit }) {
 
   const direction = useRef(new THREE.Vector3());
   const raycaster = useRef(new THREE.Raycaster());
+  const hasCheckedHit = useRef(false);
 
   const SPEED = 35;
   const MAX_DISTANCE = 50;
@@ -18,10 +19,33 @@ export default function LaserBolt({ id, onHit }) {
       .set(0, 0, -1)
       .applyQuaternion(camera.quaternion)
       .normalize();
+
+    // Check for immediate hit from camera center (crosshair)
+    raycaster.current.set(camera.position, direction.current);
+    raycaster.current.camera = camera;
+    
+    const hits = raycaster.current.intersectObjects(
+      scene.children,
+      true
+    );
+
+    if (hits.length > 0) {
+      let hit = hits[0].object;
+
+      // Walk up until enemyId found
+      while (hit && !hit.userData?.enemyId) {
+        hit = hit.parent;
+      }
+
+      if (hit && hit.userData?.enemyId !== undefined) {
+        hasCheckedHit.current = true;
+        onHit(hit.userData.enemyId, id);
+      }
+    }
   }
 
   useFrame((_, delta) => {
-    if (!meshRef.current || !camera) return;
+    if (!meshRef.current || !camera || hasCheckedHit.current) return;
 
     //  Move laser
     meshRef.current.position.addScaledVector(
@@ -29,7 +53,7 @@ export default function LaserBolt({ id, onHit }) {
       SPEED * delta
     );
 
-    //  Raycast
+    //  Raycast from laser position
     raycaster.current.set(
       meshRef.current.position,
       direction.current
@@ -49,13 +73,16 @@ export default function LaserBolt({ id, onHit }) {
         hit = hit.parent;
       }
 
-if (hit && hit.userData?.enemyId !== undefined) {
-      onHit(hit.userData.enemyId, id);
-    } else {
-      // hit something else (tree / floor)
-      onHit(null, id);
-    }      
+      if (hit && hit.userData?.enemyId !== undefined) {
+        hasCheckedHit.current = true;
+        onHit(hit.userData.enemyId, id);
+      } else {
+        // hit something else (tree / floor)
+        hasCheckedHit.current = true;
+        onHit(null, id);
+      }      
     }
+    
     if (
       meshRef.current.position.distanceTo(camera.position) >
       MAX_DISTANCE
