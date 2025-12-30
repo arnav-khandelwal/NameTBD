@@ -26,8 +26,8 @@ A rhythm-based first-person shooter game controlled entirely by hand gestures. S
 
 | Enemy | Damage | Shots to Kill | Description |
 |-------|--------|---------------|-------------|
-| 👺 Gremlin | 10 HP | 1 | Basic enemy, easy to defeat |
-| 👻 Ghost | 5 HP | 1 | Fast but weak |
+| 👻 Ghost | 5 HP | 1 | Basic enemy, easy to defeat |
+| 👺 Gremlin | 10 HP | 2 | Fast but weak |
 | 😈 Krampus | 20 HP | 3 | Strong enemy, requires multiple hits |
 | 👹 BOSS | 50 HP | 5+ | Very dangerous, high health |
 
