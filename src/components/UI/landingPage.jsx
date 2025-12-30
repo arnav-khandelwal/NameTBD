@@ -12,7 +12,30 @@ import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import cornerWreath from "../../assets/backgrounds/cornerWreath.png";
 import landingPageSong from "../../assets/audio/landingpagesong.mp3";
-export default function LandingPage({  onFreePlayStart, onMusicControlReady }) {
+import blackoutAudio from "../../assets/audio/blackout.mp3";
+import relaxAudio from "../../assets/audio/Relax.mp3";
+// Level to song mapping
+const LEVEL_SONGS = {
+  1: {
+    id: "Black Out Days",
+    title: "Black Out Days",
+    artist: "Phantogram",
+    audioUrl: blackoutAudio,
+    duration: "3:45",
+    color: "#c41e3a",
+  },
+  2: {
+    id: "Relax",
+    title: "Relax",
+    artist: "Tower B. x L.E.M.",
+    audioUrl: relaxAudio,
+    duration: "3:30",
+    color: "#81f93cff",
+  },
+  // Add more level-song mappings here
+};
+
+export default function LandingPage({  onFreePlayStart, onCampaignStart, onMusicControlReady }) {
   const [showCampaign, setShowCampaign] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -434,7 +457,11 @@ export default function LandingPage({  onFreePlayStart, onMusicControlReady }) {
                       onClick={() => {
                         if (isUnlocked) {
                           playClickThump();
-                          // Add level start logic here
+                          // Start campaign with level-specific song
+                          const levelSong = LEVEL_SONGS[level];
+                          if (levelSong && onCampaignStart) {
+                            onCampaignStart(level, levelSong);
+                          }
                         }
                       }}
                     >

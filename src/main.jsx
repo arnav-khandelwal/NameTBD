@@ -7,11 +7,18 @@ import LandingPage from './components/UI/landingPage.jsx'
 function Root() {
   const [showLandingPage, setShowLandingPage] = useState(true);
   const [showSongSelector, setShowSongSelector] = useState(false);
+  const [initialSong, setInitialSong] = useState(null);
   const landingPageMusicControlRef = useRef(null);
 
   const handleFreePlayStart = () => {
     // Show song selector modal
     setShowSongSelector(true);
+  };
+
+  const handleCampaignStart = (level, song) => {
+    // Start game with pre-selected song
+    setInitialSong(song);
+    setShowLandingPage(false);
   };
 
   const handleSongSelected = () => {
@@ -23,6 +30,7 @@ function Root() {
     // Show landing page again
     setShowLandingPage(true);
     setShowSongSelector(false);
+    setInitialSong(null);
   };
 
   return (
@@ -34,10 +42,12 @@ function Root() {
         onMainMenu={handleMainMenu}
         isGameActive={!showLandingPage}
         landingPageMusicControl={landingPageMusicControlRef.current}
+        initialSong={initialSong}
       />
       {showLandingPage && (
         <LandingPage 
           onFreePlayStart={handleFreePlayStart}
+          onCampaignStart={handleCampaignStart}
           onMusicControlReady={(control) => {
             landingPageMusicControlRef.current = control;
           }}

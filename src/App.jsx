@@ -15,7 +15,7 @@ import { FaSnowflake } from "react-icons/fa";
 import { updateUserProgress } from "./firebase/customAuth";
 import "./components/UI/landingPage.css"
 import GameHelpModal from "./components/UI/GameHelpModal";
-export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive, landingPageMusicControl }) {
+export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive, landingPageMusicControl, initialSong }) {
   const MAX_PLAYER_HEALTH = 500
   const [playerHp, setPlayerHp] = useState(MAX_PLAYER_HEALTH); /*user's health */
   const [gameOver, setGameOver] = useState(false);
@@ -44,6 +44,17 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
       setUserBestScore(null);
     }
   }, []);
+
+  // Handle initial song selection for campaign mode
+  useEffect(() => {
+    if (initialSong && !selectedSong) {
+      setSelectedSong(initialSong);
+      // Auto-play the selected song
+      setTimeout(() => {
+        audio.play();
+      }, 100);
+    }
+  }, [initialSong]);
 
   // Check and update high score when game ends
   useEffect(() => {
