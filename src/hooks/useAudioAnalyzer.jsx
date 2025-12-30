@@ -72,6 +72,19 @@ export function useAudioAnalyzer(audioUrl) {
       previousAmplitudeRef.current = 0;
       recentAmplitudesRef.current = [];
     });
+    const MAX_DURATION_SECONDS = 90; // 1 minute 30 seconds cap for all songs
+
+    const handleTimeUpdate = () => {
+      if (audio.currentTime >= MAX_DURATION_SECONDS) {
+        audio.currentTime = MAX_DURATION_SECONDS;
+        audio.pause();
+        // Simulate natural end so listeners (like level-complete logic) still fire
+        audio.dispatchEvent(new Event("ended"));
+      }
+    };
+
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+
     audio.addEventListener("ended", () => {
       setIsPlaying(false);
       previousAmplitudeRef.current = 0;
@@ -80,6 +93,7 @@ export function useAudioAnalyzer(audioUrl) {
 
     return () => {
       audio.pause();
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
       source.disconnect();
       analyser.disconnect();
       audioContext.close();

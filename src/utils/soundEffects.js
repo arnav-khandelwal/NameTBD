@@ -2,17 +2,25 @@
 
 let audioContext = null;
 
-const getAudioContext = () => {
+const getAudioContext = async () => {
   if (!audioContext) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     audioContext = new AudioContext();
+  }
+  if (audioContext.state === "suspended") {
+    try {
+      await audioContext.resume();
+    } catch {
+      return null;
+    }
   }
   return audioContext;
 };
 
 // Enemy hit sound (short impact)
-export const playEnemyHitSound = (volume = 0.3) => {
-  const ctx = getAudioContext();
+export const playEnemyHitSound = async (volume = 0.6) => {
+  const ctx = await getAudioContext();
+  if (!ctx) return;
   const now = ctx.currentTime;
 
   const oscillator = ctx.createOscillator();
@@ -33,8 +41,9 @@ export const playEnemyHitSound = (volume = 0.3) => {
 };
 
 // Enemy killed sound (explosion-like)
-export const playEnemyKillSound = (volume = 0.4) => {
-  const ctx = getAudioContext();
+export const playEnemyKillSound = async (volume = 0.9) => {
+  const ctx = await getAudioContext();
+  if (!ctx) return;
   const now = ctx.currentTime;
 
   // Create noise for explosion effect
@@ -82,8 +91,9 @@ export const playEnemyKillSound = (volume = 0.4) => {
 };
 
 // Player damage sound (painful hit)
-export const playPlayerDamageSound = (volume = 0.5) => {
-  const ctx = getAudioContext();
+export const playPlayerDamageSound = async (volume = 0.7) => {
+  const ctx = await getAudioContext();
+  if (!ctx) return;
   const now = ctx.currentTime;
 
   const oscillator1 = ctx.createOscillator();
@@ -112,8 +122,9 @@ export const playPlayerDamageSound = (volume = 0.5) => {
 };
 
 // Player death sound (game over)
-export const playPlayerDeathSound = (volume = 0.6) => {
-  const ctx = getAudioContext();
+export const playPlayerDeathSound = async (volume = 0.8) => {
+  const ctx = await getAudioContext();
+  if (!ctx) return;
   const now = ctx.currentTime;
 
   // Descending tone for death

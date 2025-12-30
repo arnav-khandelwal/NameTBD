@@ -207,6 +207,9 @@ export default function Settings({ onClose, initialSettings, onSettingsChange, o
     
     setCurrentUser(user);
     setShowLoginModal(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('beatfall-user-updated'));
+    }
     
     // Notify parent to refresh user data
     if (onUserDataChange) {
@@ -221,6 +224,9 @@ export default function Settings({ onClose, initialSettings, onSettingsChange, o
     
     setCurrentUser(null);
     setShowLogoutModal(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('beatfall-user-updated'));
+    }
     
     // Notify parent to refresh user data
     if (onUserDataChange) {

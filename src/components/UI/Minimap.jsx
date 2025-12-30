@@ -13,7 +13,9 @@ export default function Minimap({ enemies, hand }) {
     const height = canvas.height;
     const centerX = width / 2;
     const centerY = height / 2;
-    const scale = 8; // Scale factor: 1 world unit = 8 pixels
+    const MAX_RANGE = 15; // Match SPAWN_RADIUS in useEnemies
+    const MAX_RADIUS_PIXELS = 75; // Slightly inside outer circle (80)
+    const scale = MAX_RADIUS_PIXELS / MAX_RANGE;
 
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
@@ -51,13 +53,22 @@ export default function Minimap({ enemies, hand }) {
     // Draw enemies as red dots
     if (enemies && enemies.length > 0) {
       enemies.forEach(enemy => {
-        // Convert 3D position to 2D minimap coordinates
-        const enemyX = centerX + enemy.position[0] * scale;
-        const enemyZ = centerY + enemy.position[2] * scale;
+        const x = enemy.position[0];
+        const z = enemy.position[2];
+        const dist = Math.sqrt(x * x + z * z);
+
+        // Clamp to minimap radius so distant enemies stay visible at the edge
+        const clampedDist = Math.min(dist, MAX_RANGE);
+        const ratio = clampedDist / MAX_RANGE;
+        const displayRadius = ratio * MAX_RADIUS_PIXELS;
+        const angle = Math.atan2(z, x); // X right, Z down
+
+        const enemyX = centerX + Math.cos(angle) * displayRadius;
+        const enemyY = centerY + Math.sin(angle) * displayRadius;
 
         // Draw enemy dot
         ctx.beginPath();
-        ctx.arc(enemyX, enemyZ, 4, 0, Math.PI * 2);
+        ctx.arc(enemyX, enemyY, 4, 0, Math.PI * 2);
         ctx.fillStyle = "rgba(255, 96, 96, 0.95)";
         ctx.fill();
         ctx.strokeStyle = "rgba(255, 180, 180, 0.9)";

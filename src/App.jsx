@@ -16,6 +16,7 @@ import { updateUserProgress } from "./firebase/customAuth";
 import "./components/UI/landingPage.css"
 import GameHelpModal from "./components/UI/GameHelpModal";
 import DamageOverlay from "./components/UI/DamageOverlay";
+import LoginModal from "./components/UI/LoginModal";
 import { playPlayerDamageSound, playPlayerDeathSound } from "./utils/soundEffects";
 export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive, landingPageMusicControl, initialSong, currentLevel }) {
   const MAX_PLAYER_HEALTH = 500
@@ -30,6 +31,7 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
   const [damageTimestamp, setDamageTimestamp] = useState(0);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Use external control if provided, otherwise use internal state
   const showSongSelector = externalShowSongSelector !== undefined ? externalShowSongSelector : internalShowSongSelector;
@@ -38,15 +40,25 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
   const pulsesRef = useRef([]);
   const audioContextRef = useRef(null);
 
-  // Load user's best score from localStorage
+  // Load user's best score from localStorage and keep it in sync on login/logout
   useEffect(() => {
-    const storedUserData = localStorage.getItem('beatfall_user_data');
-    if (storedUserData) {
-      const userData = JSON.parse(storedUserData);
-      setUserBestScore(userData.bestScore || 0);
-    } else {
-      setUserBestScore(null);
-    }
+    const loadUserData = () => {
+      const storedUserData = localStorage.getItem('beatfall_user_data');
+      if (storedUserData) {
+        const userData = JSON.parse(storedUserData);
+        setUserBestScore(userData.bestScore || 0);
+      } else {
+        setUserBestScore(null);
+      }
+    };
+
+    loadUserData();
+
+    const handler = () => loadUserData();
+    window.addEventListener('beatfall-user-updated', handler);
+    return () => {
+      window.removeEventListener('beatfall-user-updated', handler);
+    };
   }, []);
 
   // Handle initial song selection for campaign mode
@@ -97,10 +109,12 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
   // Audio system - only initialize when song is selected
   const audio = useAudioAnalyzer(selectedSong?.audioUrl || null);
 
-  // Mark level as complete when the level song finishes (campaign only)
+  // Mark run as complete when the current song finishes (campaign or freeplay)
+  // We re-run this effect whenever a song starts playing so the 'ended'
+  // listener is always attached even after the audio element is recreated.
   useEffect(() => {
     const audioEl = audio.audioRef?.current;
-    if (!audioEl || currentLevel == null) return;
+    if (!audioEl) return;
 
     const handleEnded = () => {
       if (!gameOver) {
@@ -112,7 +126,7 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
     return () => {
       audioEl.removeEventListener("ended", handleEnded);
     };
-  }, [audio.audioRef, currentLevel, gameOver]);
+  }, [selectedSong, audio.isPlaying, gameOver]);
 
   // Callback to trigger strong pulse on enemy spawn
   const handleEnemySpawn = useCallback((spawnY) => {
@@ -217,6 +231,9 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
   const { enemies, damageEnemy } = useEnemies(audio.beatDetected, audio.isPlaying && !gameOver, handleEnemySpawn, handlePlayerDamage);
 
   const handleSongSelect = (song) => {
+    // fresh run state for the new song
+    setLevelComplete(false);
+    setGameOver(false);
     setSelectedSong(song);
     setShowSongSelector(false);
     // Notify parent that song was selected (hide landing page)
@@ -511,25 +528,26 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
           color: "white",
           fontFamily: "monospace"
         }}>
-          <h1 className="game-logo"
+          <h1
+            className="game-logo new-high-score-banner"
             style={{
               fontSize: "64px",
               marginBottom: "10px",
               letterSpacing: "4px",
             }}
           >
-            LEVEL COMPLETE
+            YOU WIN!
           </h1>
 
           {currentLevel != null && (
             <p className="game-logo" style={{ fontSize: "24px", marginBottom: "20px" }}>
-              Level {currentLevel}
+              Level {currentLevel} Complete
             </p>
           )}
 
           {isNewHighScore && (
             <div
-              className="game-logo"
+              className="game-logo new-high-score-banner"
               style={{
                 fontSize: "48px",
                 marginBottom: "20px",
@@ -544,6 +562,25 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
           <p className="game-logo" style={{ fontSize: "24px", marginBottom: "30px" }}>
             Final Score: {score}
           </p>
+
+          {userBestScore === null && (
+            <button
+              className="mode-button"
+              onClick={() => setShowLoginModal(true)}
+              style={{
+                padding: "10px 18px",
+                fontSize: "18px",
+                cursor: "pointer",
+                borderRadius: "8px",
+                border: "none",
+                background: "rgba(46, 204, 113, 0.7)",
+                color: "white",
+                marginBottom: "20px",
+              }}
+            >
+              Login to save your score
+            </button>
+          )}
 
           <button className="mode-button"
             onClick={() => {
@@ -622,7 +659,7 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
 
           {isNewHighScore && (
             <div
-              className="game-logo"
+              className="game-logo new-high-score-banner"
               style={{
                 fontSize: "48px",
                 marginBottom: "20px",
@@ -642,6 +679,25 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
             <p className="game-logo" style={{ fontSize: "24px", marginBottom: "30px" }}>
               Your High Score: {isNewHighScore ? score : userBestScore}
             </p>
+          )}
+
+          {userBestScore === null && (
+            <button
+              className="mode-button"
+              onClick={() => setShowLoginModal(true)}
+              style={{
+                padding: "10px 18px",
+                fontSize: "18px",
+                cursor: "pointer",
+                borderRadius: "8px",
+                border: "none",
+                background: "rgba(46, 204, 113, 0.7)",
+                color: "white",
+                marginBottom: "20px",
+              }}
+            >
+              Login to save your score
+            </button>
           )}
 
 
@@ -695,6 +751,21 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
             audio.play();
           }
         }} />
+      )}
+
+      {showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onLoginSuccess={(userData) => {
+            setShowLoginModal(false);
+            if (userData && typeof userData.bestScore === 'number') {
+              setUserBestScore(userData.bestScore);
+            }
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent('beatfall-user-updated'));
+            }
+          }}
+        />
       )}
     </>
   );

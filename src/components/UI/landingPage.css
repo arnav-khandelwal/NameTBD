@@ -243,6 +243,22 @@
   animation: icon-twinkle 6s ease-in-out infinite 0.5s;
 }
 
+.new-high-score-banner {
+  animation: highscore-pulse 1.3s ease-in-out infinite;
+}
+
+@keyframes highscore-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 
 
 /* Control Sub-cards */

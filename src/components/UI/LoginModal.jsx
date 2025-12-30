@@ -117,6 +117,9 @@ export default function LoginModal({ onClose, onLoginSuccess }) {
         // Save to localStorage
         localStorage.setItem('beatfall_username', username);
         localStorage.setItem('beatfall_user_data', JSON.stringify(userData));
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent('beatfall-user-updated'));
+        }
         
         if (onLoginSuccess) {
           onLoginSuccess(userData);
