@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { IoClose, IoVolumeHigh, IoVolumeMute, IoGameController, IoMusicalNotes } from "react-icons/io5";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import { GiSoundWaves } from "react-icons/gi";
+import LoginModal from "./LoginModal";
 import "./Settings.css";
 
 export default function Settings({ onClose, initialSettings, onSettingsChange }) {
@@ -10,10 +11,20 @@ export default function Settings({ onClose, initialSettings, onSettingsChange })
   const [gameVolume, setGameVolume] = useState(initialSettings.gameVolume);
   const [mainMenuMuted, setMainMenuMuted] = useState(initialSettings.mainMenuMuted);
   const [hapticsMuted, setHapticsMuted] = useState(initialSettings.hapticsMuted || false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   
   const previousMainMenuVolumeRef = useRef(initialSettings.mainMenuVolume || 0.1);
   const previousHapticsVolumeRef = useRef(initialSettings.hapticsVolume || 0.5);
   const audioContextRef = useRef(null);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const savedUsername = localStorage.getItem('beatfall_username');
+    if (savedUsername) {
+      setCurrentUser({ username: savedUsername });
+    }
+  }, []);
 
   const ensureAudioContext = () => {
     if (typeof window === "undefined") return null;
@@ -175,114 +186,139 @@ export default function Settings({ onClose, initialSettings, onSettingsChange })
 
   const handleLoginClick = () => {
     playClickSound();
-    alert('Login feature coming soon!');
+    if (currentUser) {
+      // User is logged in, show logout confirmation or profile
+      const confirmLogout = confirm(`Logged in as ${currentUser.username}. Do you want to logout?`);
+      if (confirmLogout) {
+        localStorage.removeItem('beatfall_username');
+        setCurrentUser(null);
+      }
+    } else {
+      // User is not logged in, show login modal
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    setShowLoginModal(false);
   };
 
   return (
-    <div className="settings-backdrop" onClick={handleBackdropClick}>
-      <div className="settings-modal">
-        <div className="settings-header">
-          <h2 className="settings-title">Settings</h2>
-          <button 
-            className="settings-close-button" 
-            onClick={handleCloseClick}
-            onMouseEnter={playHoverSound}
-          >
-            <IoClose />
-          </button>
-        </div>
+    <>
+      <div className="settings-backdrop" onClick={handleBackdropClick}>
+        <div className="settings-modal">
+          <div className="settings-header">
+            <h2 className="settings-title">Settings</h2>
+            <button 
+              className="settings-close-button" 
+              onClick={handleCloseClick}
+              onMouseEnter={playHoverSound}
+            >
+              <IoClose />
+            </button>
+          </div>
 
-        <div className="settings-content">
-          {/* Main Menu Volume */}
-          <div className="setting-group">
-            <div className="setting-label">
-              <IoMusicalNotes className="setting-icon" />
-              <span>Main Menu Volume</span>
+          <div className="settings-content">
+            {/* Main Menu Volume */}
+            <div className="setting-group">
+              <div className="setting-label">
+                <IoMusicalNotes className="setting-icon" />
+                <span>Main Menu Volume</span>
+              </div>
+              <div className="volume-control-group">
+                <button 
+                  className="volume-mute-btn" 
+                  onClick={toggleMainMenuMute}
+                  onMouseEnter={playHoverSound}
+                >
+                  {mainMenuMuted || mainMenuVolume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={mainMenuVolume}
+                  onChange={handleMainMenuVolumeChange}
+                  className="settings-slider"
+                />
+                <span className="volume-value">{Math.round(mainMenuVolume * 100)}%</span>
+              </div>
             </div>
-            <div className="volume-control-group">
-              <button 
-                className="volume-mute-btn" 
-                onClick={toggleMainMenuMute}
-                onMouseEnter={playHoverSound}
-              >
-                {mainMenuMuted || mainMenuVolume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={mainMenuVolume}
-                onChange={handleMainMenuVolumeChange}
-                className="settings-slider"
-              />
-              <span className="volume-value">{Math.round(mainMenuVolume * 100)}%</span>
+
+            {/* Haptics Volume */}
+            <div className="setting-group">
+              <div className="setting-label">
+                <GiSoundWaves className="setting-icon" />
+                <span>Haptics Volume</span>
+              </div>
+              <div className="volume-control-group">
+                <button 
+                  className="volume-mute-btn" 
+                  onClick={toggleHapticsMute}
+                  onMouseEnter={playHoverSound}
+                >
+                  {hapticsMuted || hapticsVolume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={hapticsVolume}
+                  onChange={handleHapticsVolumeChange}
+                  className="settings-slider"
+                />
+                <span className="volume-value">{Math.round(hapticsVolume * 100)}%</span>
+              </div>
+            </div>
+
+            {/* Game Volume */}
+            <div className="setting-group">
+              <div className="setting-label">
+                <IoGameController className="setting-icon" />
+                <span>Game Volume</span>
+              </div>
+              <div className="volume-control-group">
+                <button className="volume-mute-btn disabled">
+                  <FaVolumeUp />
+                </button>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="1"
+                  step="0.05"
+                  value={gameVolume}
+                  onChange={handleGameVolumeChange}
+                  className="settings-slider"
+                />
+                <span className="volume-value">{Math.round(gameVolume * 100)}%</span>
+              </div>
+              <p className="setting-note">Game volume cannot be muted below 10%</p>
             </div>
           </div>
 
-          {/* Haptics Volume */}
-          <div className="setting-group">
-            <div className="setting-label">
-              <GiSoundWaves className="setting-icon" />
-              <span>Haptics Volume</span>
-            </div>
-            <div className="volume-control-group">
-              <button 
-                className="volume-mute-btn" 
-                onClick={toggleHapticsMute}
-                onMouseEnter={playHoverSound}
-              >
-                {hapticsMuted || hapticsVolume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={hapticsVolume}
-                onChange={handleHapticsVolumeChange}
-                className="settings-slider"
-              />
-              <span className="volume-value">{Math.round(hapticsVolume * 100)}%</span>
-            </div>
+          {/* Login Button */}
+          <div className="settings-footer">
+            <button 
+              className="login-button" 
+              onClick={handleLoginClick}
+              onMouseEnter={playHoverSound}
+            >
+              {currentUser ? `Logged in as ${currentUser.username}` : 'Log In to Save Progress'}
+            </button>
           </div>
-
-          {/* Game Volume */}
-          <div className="setting-group">
-            <div className="setting-label">
-              <IoGameController className="setting-icon" />
-              <span>Game Volume</span>
-            </div>
-            <div className="volume-control-group">
-              <button className="volume-mute-btn disabled">
-                <FaVolumeUp />
-              </button>
-              <input
-                type="range"
-                min="0.1"
-                max="1"
-                step="0.05"
-                value={gameVolume}
-                onChange={handleGameVolumeChange}
-                className="settings-slider"
-              />
-              <span className="volume-value">{Math.round(gameVolume * 100)}%</span>
-            </div>
-            <p className="setting-note">Game volume cannot be muted below 10%</p>
-          </div>
-        </div>
-
-        {/* Login Button */}
-        <div className="settings-footer">
-          <button 
-            className="login-button" 
-            onClick={handleLoginClick}
-            onMouseEnter={playHoverSound}
-          >
-            Log In to Save Progress
-          </button>
         </div>
       </div>
-    </div>
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <LoginModal 
+          onClose={() => setShowLoginModal(false)} 
+          onLoginSuccess={handleLoginSuccess}
+        />
+      )}
+    </>
   );
 }

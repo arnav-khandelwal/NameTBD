@@ -20,7 +20,7 @@ export default function LandingPage({  onFreePlayStart, onMusicControlReady }) {
     }
     return {
       mainMenuVolume: 0.1,
-      hapticsVolume: 0.5,
+      hapticsVolume: 0.8,
       gameVolume: 0.5,
       mainMenuMuted: false,
       hapticsMuted: false
