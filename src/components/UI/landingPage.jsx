@@ -14,7 +14,26 @@ import cornerWreath from "../../assets/backgrounds/cornerWreath.png";
 import landingPageSong from "../../assets/audio/landingpagesong.mp3";
 import blackoutAudio from "../../assets/audio/blackout.mp3";
 import relaxAudio from "../../assets/audio/Relax.mp3";
-// Level to song mapping
+import ActionRock from "../../assets/audio/Action-Rock.mp3";
+import VolcanoCast from "../../assets/audio/back-to-the-volcano-castle.mp3";
+import Chael from "../../assets/audio/chael-sparks.mp3";
+import Cybernetic from "../../assets/audio/Cybernetic-Dreams.mp3";
+import Cyberpunk from "../../assets/audio/Cyrberpunk.mp3";
+import Deck from "../../assets/audio/Deck-The-Halls.mp3";
+import Dream from "../../assets/audio/Dream_of_a_Dream.mp3";
+import Glitch from "../../assets/audio/glitch-mourning.mp3";
+import Honour from "../../assets/audio/HonourAmongThieves.mp3";
+import Dragon from "../../assets/audio/makai-symphony-dragon-slayer.mp3";
+import Mazare from "../../assets/audio/MazareDriveDrive-Honest.mp3";
+import Push from "../../assets/audio/Push-Long-Version.mp3";
+import Revol from "../../assets/audio/Revolution-Long-Version.mp3";
+import Spring from "../../assets/audio/Spring-Flowers.mp3";
+import Summer from "../../assets/audio/Summer-Sport.mp3";
+import SweetSun from "../../assets/audio/Sweet-Sun.mp3";
+import LongWayHome from "../../assets/audio/The-Long-Way-Home.mp3";
+import Upbeat from "../../assets/audio/Upbeat-Forever.mp3";
+import Wild from "../../assets/audio/Wildflowers.mp3";
+// Level to song mapping (20 levels -> 20 songs)
 const LEVEL_SONGS = {
   1: {
     id: "Black Out Days",
@@ -32,7 +51,150 @@ const LEVEL_SONGS = {
     duration: "3:30",
     color: "#81f93cff",
   },
-  // Add more level-song mappings here
+  3: {
+    id: "ActionRock",
+    title: "Action Rock",
+    artist: "MaxKoMusic",
+    audioUrl: ActionRock,
+    duration: "2:45",
+    color: "#ff4500",
+  },
+  4: {
+    id: "VolcanoCast",
+    title: "Back to the Volcano Castle",
+    artist: "Babasmas",
+    audioUrl: VolcanoCast,
+    duration: "3:12",
+    color: "#ff8c00",
+  },
+  5: {
+    id: "Chael",
+    title: "Sparks",
+    artist: "Chael",
+    audioUrl: Chael,
+    duration: "2:58",
+    color: "#da70d6",
+  },
+  6: {
+    id: "Cybernetic",
+    title: "Cybernetic Dreams",
+    artist: "Alex-productions",
+    audioUrl: Cybernetic,
+    duration: "4:05",
+    color: "#00ced1",
+  },
+  7: {
+    id: "Cyberpunk",
+    title: "Cyberpunk",
+    artist: "Alex-productions",
+    audioUrl: Cyberpunk,
+    duration: "3:30",
+    color: "#ff00ff",
+  },
+  8: {
+    id: "Deck",
+    title: "Deck The Halls",
+    artist: "Alex-productions",
+    audioUrl: Deck,
+    duration: "2:15",
+    color: "#228b22",
+  },
+  9: {
+    id: "Dream",
+    title: "Dream of a Dream",
+    artist: "Alexander Nakarada",
+    audioUrl: Dream,
+    duration: "3:50",
+    color: "#9370db",
+  },
+  10: {
+    id: "Glitch",
+    title: "Mourning",
+    artist: "Glitch",
+    audioUrl: Glitch,
+    duration: "3:20",
+    color: "#4682b4",
+  },
+  11: {
+    id: "Honour",
+    title: "Honour Among Thieves",
+    artist: "Scott Buckley",
+    audioUrl: Honour,
+    duration: "3:40",
+    color: "#b8860b",
+  },
+  12: {
+    id: "Dragon",
+    title: "Dragon Slayer",
+    artist: "Makai Symphony",
+    audioUrl: Dragon,
+    duration: "4:15",
+    color: "#8b0000",
+  },
+  13: {
+    id: "Mazare",
+    title: "Drive! Drive! ",
+    artist: "Mazare",
+    audioUrl: Mazare,
+    duration: "3:25",
+    color: "#1e90ff",
+  },
+  14: {
+    id: "Push",
+    title: "Push ",
+    artist: "Alex-productions",
+    audioUrl: Push,
+    duration: "5:10",
+    color: "#32cd32",
+  },
+  15: {
+    id: "Revol",
+    title: "Revolution ",
+    artist: "Alex-productions",
+    audioUrl: Revol,
+    duration: "4:45",
+    color: "#ff1493",
+  },
+  16: {
+    id: "Spring",
+    title: "Spring Flowers",
+    artist: "Keys Of Moon",
+    audioUrl: Spring,
+    duration: "2:30",
+    color: "#ffb6c1",
+  },
+  17: {
+    id: "Summer",
+    title: "Summer Sport",
+    artist: "Audio Coffee",
+    audioUrl: Summer,
+    duration: "2:50",
+    color: "#ffd700",
+  },
+  18: {
+    id: "SweetSun",
+    title: "Sweet Sun",
+    artist: "Loyalty Freak Music",
+    audioUrl: SweetSun,
+    duration: "3:10",
+    color: "#ffa07a",
+  },
+  19: {
+    id: "LongWayHome",
+    title: "The Long Way Home",
+    artist: "Alex-productions",
+    audioUrl: LongWayHome,
+    duration: "4:20",
+    color: "#7b68ee",
+  },
+  20: {
+    id: "Upbeat",
+    title: "Upbeat Forever",
+    artist: "Kevin Mcleod",
+    audioUrl: Upbeat,
+    duration: "2:55",
+    color: "#00fa9a",
+  },
 };
 
 export default function LandingPage({  onFreePlayStart, onCampaignStart, onMusicControlReady }) {
@@ -316,7 +478,7 @@ export default function LandingPage({  onFreePlayStart, onCampaignStart, onMusic
 
       {/* Top Header Tags */}
       <div className="header-tags">
-        <div className="tag-box">v0.0.0</div>
+        <div className="tag-box">v4.2.0</div>
         <div className="tag-box gold-text">CHRISTMAS SPECIAL</div>
         <button 
           className="settings-button"

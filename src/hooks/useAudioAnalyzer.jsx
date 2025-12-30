@@ -72,7 +72,7 @@ export function useAudioAnalyzer(audioUrl) {
       previousAmplitudeRef.current = 0;
       recentAmplitudesRef.current = [];
     });
-    const MAX_DURATION_SECONDS = 90; // 1 minute 30 seconds cap for all songs
+    const MAX_DURATION_SECONDS = 120; // 2 minute cap for all songs
 
     const handleTimeUpdate = () => {
       if (audio.currentTime >= MAX_DURATION_SECONDS) {

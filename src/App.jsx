@@ -98,6 +98,42 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
     }
   }, [gameOver, levelComplete, score, userBestScore]);
 
+  // Campaign progression: when a campaign level is completed successfully, unlock the next level
+  useEffect(() => {
+    if (!levelComplete || !currentLevel) return;
+
+    try {
+      const storedUserData = localStorage.getItem("beatfall_user_data");
+      if (!storedUserData) return;
+
+      const userData = JSON.parse(storedUserData);
+      const username = userData?.username;
+      if (!username) return;
+
+      const storedLevel = Number(userData.level || 1);
+
+      // Only advance if the completed level is at least the current stored level
+      if (currentLevel < storedLevel) return;
+
+      const newLevel = Math.min(currentLevel + 1, 20);
+      if (newLevel === storedLevel) return;
+
+      updateUserProgress(username, newLevel, userData.bestScore)
+        .then(() => {
+          const updated = { ...userData, level: newLevel };
+          localStorage.setItem("beatfall_user_data", JSON.stringify(updated));
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("beatfall-user-updated"));
+          }
+        })
+        .catch(() => {
+          // Best-effort: ignore backend errors
+        });
+    } catch (e) {
+      // Ignore malformed localStorage data
+    }
+  }, [levelComplete, currentLevel]);
+
   // Disable hand tracking when not in game or when game over
   useHandInput(setHand, isGameActive && !gameOver);
 
