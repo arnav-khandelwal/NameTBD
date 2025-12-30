@@ -15,7 +15,9 @@ import { FaSnowflake } from "react-icons/fa";
 import { updateUserProgress } from "./firebase/customAuth";
 import "./components/UI/landingPage.css"
 import GameHelpModal from "./components/UI/GameHelpModal";
-export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive, landingPageMusicControl, initialSong }) {
+import DamageOverlay from "./components/UI/DamageOverlay";
+import { playPlayerDamageSound, playPlayerDeathSound } from "./utils/soundEffects";
+export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive, landingPageMusicControl, initialSong, currentLevel }) {
   const MAX_PLAYER_HEALTH = 500
   const [playerHp, setPlayerHp] = useState(MAX_PLAYER_HEALTH); /*user's health */
   const [gameOver, setGameOver] = useState(false);
@@ -26,6 +28,8 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
   const [userBestScore, setUserBestScore] = useState(null);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [levelComplete, setLevelComplete] = useState(false);
+  const [damageTimestamp, setDamageTimestamp] = useState(0);
 
   // Use external control if provided, otherwise use internal state
   const showSongSelector = externalShowSongSelector !== undefined ? externalShowSongSelector : internalShowSongSelector;
@@ -56,9 +60,10 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
     }
   }, [initialSong]);
 
-  // Check and update high score when game ends
+  // Check and update high score when a run ends (death or level complete)
   useEffect(() => {
-    if (gameOver && userBestScore !== null && score > userBestScore) {
+    const runEnded = gameOver || levelComplete;
+    if (runEnded && userBestScore !== null && score > userBestScore) {
       setIsNewHighScore(true);
 
       // Update in Firebase
@@ -76,18 +81,38 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
           }
         });
       }
-    } else if (gameOver) {
+    } else if (runEnded) {
       setIsNewHighScore(false);
     }
-  }, [gameOver, score, userBestScore]);
+  }, [gameOver, levelComplete, score, userBestScore]);
 
-  useHandInput(setHand, isGameActive);
+  // Disable hand tracking when not in game or when game over
+  useHandInput(setHand, isGameActive && !gameOver);
 
-  // Disable aim and fire when on landing page
-  const activeHand = isGameActive ? hand : { ...hand, aim: false, fire: false };
+  // Disable aim and fire when on landing page or game over
+  const activeHand = isGameActive && !gameOver
+    ? hand
+    : { ...hand, aim: false, fire: false };
 
   // Audio system - only initialize when song is selected
   const audio = useAudioAnalyzer(selectedSong?.audioUrl || null);
+
+  // Mark level as complete when the level song finishes (campaign only)
+  useEffect(() => {
+    const audioEl = audio.audioRef?.current;
+    if (!audioEl || currentLevel == null) return;
+
+    const handleEnded = () => {
+      if (!gameOver) {
+        setLevelComplete(true);
+      }
+    };
+
+    audioEl.addEventListener("ended", handleEnded);
+    return () => {
+      audioEl.removeEventListener("ended", handleEnded);
+    };
+  }, [audio.audioRef, currentLevel, gameOver]);
 
   // Callback to trigger strong pulse on enemy spawn
   const handleEnemySpawn = useCallback((spawnY) => {
@@ -122,9 +147,17 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
 
     const DAMAGE = DAMAGE_MAP[enemy.type] ?? 10;
 
+    // Play damage sound and trigger overlay
+    playPlayerDamageSound();
+    setDamageTimestamp(Date.now());
+
     setPlayerHp(prev => {
       const nextHp = Math.max(0, prev - DAMAGE);
-      if (nextHp === 0) setGameOver(true);
+      if (nextHp === 0) {
+        setGameOver(true);
+        // Play death sound
+        playPlayerDeathSound();
+      }
       return nextHp;
     });
   }, []);
@@ -211,6 +244,7 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
     setSelectedSong(null);
     // Reset game over state
     setGameOver(false);
+    setLevelComplete(false);
     setPlayerHp(MAX_PLAYER_HEALTH);
     setScore(0);
     setIsNewHighScore(false);
@@ -228,9 +262,11 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
 
   const handleRestartGame = () => {
     setGameOver(false);
+    setLevelComplete(false);
     setPlayerHp(MAX_PLAYER_HEALTH);
     setScore(0);
     setIsNewHighScore(false);
+    setDamageTimestamp(0);
     const a = audio.audioRef.current;
     a.pause();        // stop if playing
     a.currentTime = 0; 
@@ -256,9 +292,9 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
         pulsesRef={pulsesRef}
       />
 
-      <World hand={hand} enemies={enemies} setScore={setScore} damageEnemy={damageEnemy} />
+      <World hand={activeHand} enemies={enemies} setScore={setScore} damageEnemy={damageEnemy} />
 
-      <HandCanvas isGameActive={isGameActive}
+      <HandCanvas isGameActive={isGameActive && !gameOver}
         landmarks={activeHand.landmarks}
         aim={activeHand.aim}
         fire={activeHand.fire}
@@ -266,6 +302,8 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
       {/*UserHealthBar*/}
       <HealthBar hp={playerHp} maxHp={MAX_PLAYER_HEALTH} />
       <ScopeOverlay visible={activeHand.aim} fire={hand.fire} />
+      {/* Damage Overlay */}
+      <DamageOverlay damage={damageTimestamp} />
       {/* Top-right Controls */}
       <div style={{
         position: "fixed",
@@ -460,6 +498,93 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
         )}
       </div>
 
+      {levelComplete && !gameOver && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.85)",
+          zIndex: 99998,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontFamily: "monospace"
+        }}>
+          <h1 className="game-logo"
+            style={{
+              fontSize: "64px",
+              marginBottom: "10px",
+              letterSpacing: "4px",
+            }}
+          >
+            LEVEL COMPLETE
+          </h1>
+
+          {currentLevel != null && (
+            <p className="game-logo" style={{ fontSize: "24px", marginBottom: "20px" }}>
+              Level {currentLevel}
+            </p>
+          )}
+
+          {isNewHighScore && (
+            <div
+              className="game-logo"
+              style={{
+                fontSize: "48px",
+                marginBottom: "20px",
+                color: "#ffdf00",
+                textShadow: "0 0 18px #ffdf00",
+              }}
+            >
+              NEW HIGH SCORE!
+            </div>
+          )}
+
+          <p className="game-logo" style={{ fontSize: "24px", marginBottom: "30px" }}>
+            Final Score: {score}
+          </p>
+
+          <button className="mode-button"
+            onClick={() => {
+              playClickSound();
+              handleRestartGame();
+            }}
+            style={{
+              padding: "12px 20px",
+              fontSize: "18px",
+              cursor: "pointer",
+              borderRadius: "8px",
+              border: "none",
+              background: "rgba(46, 204, 113, 0.7)",
+              color: "white",
+              marginBottom: "15px",
+            }}
+          >
+            Replay Level
+          </button>
+
+          <button className="mode-button"
+            onClick={() => {
+              playClickSound();
+              handleMainMenuClick();
+            }}
+            style={{
+              padding: "12px 20px",
+              fontSize: "18px",
+              cursor: "pointer",
+              borderRadius: "8px",
+              border: "none",
+              background: "rgba(138, 43, 226, 0.7)",
+              color: "white",
+            }}
+          >
+            <IoHome style={{ marginRight: "8px", verticalAlign: "middle" }} />
+            Main Menu
+          </button>
+        </div>
+      )}
+
       {gameOver && (
         <div style={{
           position: "fixed",
@@ -494,6 +619,20 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
               <span>VER</span>
             </span>
           </h1>
+
+          {isNewHighScore && (
+            <div
+              className="game-logo"
+              style={{
+                fontSize: "48px",
+                marginBottom: "20px",
+                color: "#ffdf00",
+                textShadow: "0 0 18px #ffdf00",
+              }}
+            >
+              NEW HIGH SCORE!
+            </div>
+          )}
 
           <p className="game-logo" style={{ fontSize: "24px", marginBottom: "30px" }}>
             Final Score: {score}

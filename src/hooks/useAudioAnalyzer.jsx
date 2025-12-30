@@ -16,17 +16,18 @@ export function useAudioAnalyzer(audioUrl) {
   const dataArrayRef = useRef(null);
   const sourceRef = useRef(null);
   
-  // Calibration state
-  const calibrationSamplesRef = useRef([]);
-  const averageAmplitudeRef = useRef(null);
-  const calibrationStartTimeRef = useRef(null);
+  // Simple beat detection state
+  const previousAmplitudeRef = useRef(0);
   const lastBeatTimeRef = useRef(0);
+  const recentAmplitudesRef = useRef([]); // Store recent amplitudes for threshold
   
-  const CALIBRATION_DURATION = 8000; // 8 seconds
-  const BEAT_THRESHOLD = 2.8; // Current amplitude must be 3.0x average
-  const BEAT_COOLDOWN = 300; // 300ms betw een beats
+  // Beat detection tuning
+  // We use relative jumps vs recent average to keep things responsive
+  const BEAT_THRESHOLD_MULTIPLIER = 1.25; // Amplitude must be ~1.25x recent average
+  const BEAT_COOLDOWN = 200; // 200ms between beats
   const LOW_FREQ_START = 0; // Start of low frequency range (index)
   const LOW_FREQ_END = 8; // End of low frequency range (index, ~150Hz at 2048 FFT)
+  const RECENT_SAMPLES_COUNT = 20; // Number of recent samples to track
 
   useEffect(() => {
     // Don't initialize if no audio URL provided
@@ -60,14 +61,22 @@ export function useAudioAnalyzer(audioUrl) {
     // Audio event listeners
     audio.addEventListener("play", () => {
       setIsPlaying(true);
-      calibrationStartTimeRef.current = Date.now();
       if (audioContext.state === "suspended") {
         audioContext.resume();
       }
     });
 
-    audio.addEventListener("pause", () => setIsPlaying(false));
-    audio.addEventListener("ended", () => setIsPlaying(false));
+    audio.addEventListener("pause", () => {
+      setIsPlaying(false);
+      // Reset tracking on pause
+      previousAmplitudeRef.current = 0;
+      recentAmplitudesRef.current = [];
+    });
+    audio.addEventListener("ended", () => {
+      setIsPlaying(false);
+      previousAmplitudeRef.current = 0;
+      recentAmplitudesRef.current = [];
+    });
 
     return () => {
       audio.pause();
@@ -100,32 +109,37 @@ export function useAudioAnalyzer(audioUrl) {
       const amplitude = sum / (LOW_FREQ_END - LOW_FREQ_START);
       setCurrentAmplitude(amplitude);
 
-      // Calibration phase: collect samples for first 10 seconds
-      const now = Date.now();
-      const calibrationElapsed = now - calibrationStartTimeRef.current;
-      
-      if (calibrationElapsed < CALIBRATION_DURATION) {
-        calibrationSamplesRef.current.push(amplitude);
-      } else if (averageAmplitudeRef.current === null) {
-        // Calibration complete - calculate average
-        const samples = calibrationSamplesRef.current;
-        const avg = samples.reduce((a, b) => a + b, 0) / samples.length;
-        averageAmplitudeRef.current = avg;
-        console.log(`🎵 Calibration complete. Average amplitude: ${avg.toFixed(2)}`);
+      // Track recent amplitudes
+      recentAmplitudesRef.current.push(amplitude);
+      if (recentAmplitudesRef.current.length > RECENT_SAMPLES_COUNT) {
+        recentAmplitudesRef.current.shift();
       }
 
-      // Beat detection (only after calibration)
-      if (averageAmplitudeRef.current !== null) {
-        const threshold = averageAmplitudeRef.current * BEAT_THRESHOLD;
-        const timeSinceLastBeat = now - lastBeatTimeRef.current;
-        
-        if (amplitude > threshold && timeSinceLastBeat > BEAT_COOLDOWN) {
-          setBeatDetected(true);
-          lastBeatTimeRef.current = now;
-          // Reset beat flag after a short delay
-          setTimeout(() => setBeatDetected(false), 50);
-        }
+      // Simple beat detection based on relative amplitude jump
+      const now = Date.now();
+      const timeSinceLastBeat = now - lastBeatTimeRef.current;
+      
+      // Calculate average of recent amplitudes
+      const recentAverage = recentAmplitudesRef.current.length > 0
+        ? recentAmplitudesRef.current.reduce((a, b) => a + b, 0) / recentAmplitudesRef.current.length
+        : amplitude;
+      
+      // Detect beat: current amplitude is significantly higher than recent average
+      // AND enough time has passed since last beat
+      const threshold = recentAverage * BEAT_THRESHOLD_MULTIPLIER;
+      const strongJump = amplitude > threshold;
+      const quickJump = amplitude > recentAverage + 12; // extra condition for punchy hits
+
+      if ((strongJump || quickJump) &&
+          amplitude > 15 && // Minimum amplitude to avoid background noise
+          timeSinceLastBeat > BEAT_COOLDOWN) {
+        setBeatDetected(true);
+        lastBeatTimeRef.current = now;
+        // Reset beat flag after a short delay
+        setTimeout(() => setBeatDetected(false), 50);
       }
+      
+      previousAmplitudeRef.current = amplitude;
 
       animationId = requestAnimationFrame(analyze);
     };
@@ -149,21 +163,12 @@ export function useAudioAnalyzer(audioUrl) {
     }
   };
 
-  const getCalibrationProgress = () => {
-    if (!calibrationStartTimeRef.current) return 0;
-    const elapsed = Date.now() - calibrationStartTimeRef.current;
-    return Math.min(elapsed / CALIBRATION_DURATION, 1);
-  };
-
   return {
     play,
     pause,
     isPlaying,
     audioRef,
     currentAmplitude,
-    averageAmplitude: averageAmplitudeRef.current,
     beatDetected,
-    isCalibrated: averageAmplitudeRef.current !== null,
-    calibrationProgress: getCalibrationProgress(),
   };
 }

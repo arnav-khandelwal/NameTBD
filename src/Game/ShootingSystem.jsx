@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import LaserBolt from "./LaserBolt";
+import { playEnemyHitSound, playEnemyKillSound } from "../utils/soundEffects";
 
 export default function ShootingSystem({
   hand,
@@ -35,8 +36,14 @@ export default function ShootingSystem({
     const enemy = enemies.find(e => e.id === enemyId);
     if (!enemy) return;
 
-    // scoring 
-    if (enemy.health - DAMAGE <= 0) {
+    // Check if enemy will die
+    const willDie = enemy.health - DAMAGE <= 0;
+    
+    if (willDie) {
+      // Play kill sound
+      playEnemyKillSound();
+      
+      // scoring 
       let a;
       if(enemy.type==="gremlin"){
         a=10;
@@ -51,6 +58,9 @@ export default function ShootingSystem({
         a=35;
       }
       setScore(s => s + a);
+    } else {
+      // Play hit sound (damaged but not killed)
+      playEnemyHitSound();
     }
 
     // remove laser

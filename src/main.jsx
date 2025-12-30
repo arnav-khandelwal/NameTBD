@@ -8,21 +8,25 @@ function Root() {
   const [showLandingPage, setShowLandingPage] = useState(true);
   const [showSongSelector, setShowSongSelector] = useState(false);
   const [initialSong, setInitialSong] = useState(null);
+  const [currentLevel, setCurrentLevel] = useState(null);
   const landingPageMusicControlRef = useRef(null);
 
   const handleFreePlayStart = () => {
     // Show song selector modal
+    setCurrentLevel(null);
     setShowSongSelector(true);
   };
 
   const handleCampaignStart = (level, song) => {
     // Start game with pre-selected song
     setInitialSong(song);
+    setCurrentLevel(level);
     setShowLandingPage(false);
   };
 
   const handleSongSelected = () => {
     // Hide landing page and let game start
+    setCurrentLevel(null);
     setShowLandingPage(false);
   };
 
@@ -31,6 +35,7 @@ function Root() {
     setShowLandingPage(true);
     setShowSongSelector(false);
     setInitialSong(null);
+    setCurrentLevel(null);
   };
 
   return (
@@ -43,6 +48,7 @@ function Root() {
         isGameActive={!showLandingPage}
         landingPageMusicControl={landingPageMusicControlRef.current}
         initialSong={initialSong}
+        currentLevel={currentLevel}
       />
       {showLandingPage && (
         <LandingPage 
