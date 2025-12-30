@@ -1,41 +1,144 @@
 import { useState, useRef, useEffect } from "react";
-import { IoClose, IoHeadset, IoPlay, IoMusicalNotes } from "react-icons/io5";
+import { IoClose, IoHeadset, IoPlay, IoMusicalNotes, IoStop } from "react-icons/io5";
 import "./SongSelector.css";
 import blackoutAudio from "../../assets/audio/blackout.mp3";
+import relaxAudio from "../../assets/audio/relax.mp3";
 
 // Song library - easily extensible for more songs
 const SONGS = [
   {
-    id: "blackout",
-    title: "Blackout",
-    artist: "Unknown Artist",
+    id: "Black Out Days",
+    title: "Black Out Days",
+    artist: "Phantogram",
     audioUrl: blackoutAudio,
     duration: "3:45",
     color: "#c41e3a", // Christmas red
   },
+  {
+    id: "Relax",
+    title: "Relax",
+    artist: "Tower B. x L.E.M.",
+    audioUrl: relaxAudio,
+    duration: "3:30",
+    color: "#81f93cff", // Christmas green
+  },
   // Add more songs here in the future
 ];
 
-export default function SongSelector({ onSongSelect, onClose }) {
+export default function SongSelector({ onSongSelect, onClose, landingPageMusicControl }) {
   const [hoveredSong, setHoveredSong] = useState(null);
   const [previewingSong, setPreviewingSong] = useState(null);
+  const [previewProgress, setPreviewProgress] = useState(0);
   const previewAudioRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const previewTimeoutRef = useRef(null);
+  const progressIntervalRef = useRef(null);
 
-  // Cleanup preview audio on unmount
+  // Cleanup preview audio on unmount and unmute landing page music
   useEffect(() => {
     return () => {
       if (previewAudioRef.current) {
         previewAudioRef.current.pause();
         previewAudioRef.current = null;
       }
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+      }
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+      // Unmute landing page music when modal closes
+      if (landingPageMusicControl) {
+        landingPageMusicControl.unmuteFromPreview();
+      }
     };
-  }, []);
+  }, [landingPageMusicControl]);
+
+  const ensureAudioContext = () => {
+    if (typeof window === "undefined") return null;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioCtx();
+    }
+    return audioContextRef.current;
+  };
+
+  const playHoverSound = async () => {
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch {
+        return;
+      }
+    }
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(1200, now);
+
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(0.06, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.3);
+  };
+
+  const playClickSound = async () => {
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch {
+        return;
+      }
+    }
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.18);
+
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(0.08, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.25);
+  };
 
   const handlePreview = (song) => {
+    playClickSound();
     // Stop any existing preview
     if (previewAudioRef.current) {
       previewAudioRef.current.pause();
       previewAudioRef.current = null;
+    }
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+
+    // Mute landing page music
+    if (landingPageMusicControl) {
+      landingPageMusicControl.muteForPreview();
     }
 
     // Create new audio element
@@ -51,22 +154,69 @@ export default function SongSelector({ onSongSelect, onClose }) {
       audio.currentTime = randomStart;
     });
 
-    // Play for 5 seconds then stop
+    // Play for 10 seconds then stop
     audio.play();
     setPreviewingSong(song.id);
+    setPreviewProgress(0);
 
-    const previewTimeout = setTimeout(() => {
+    // Update progress every 100ms
+    const startTime = Date.now();
+    const previewDuration = 10000; // 10 seconds
+    progressIntervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min((elapsed / previewDuration) * 100, 100);
+      setPreviewProgress(progress);
+    }, 100);
+
+    previewTimeoutRef.current = setTimeout(() => {
       audio.pause();
       setPreviewingSong(null);
-    }, 5000);
+      setPreviewProgress(0);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+      // Unmute landing page music when preview ends
+      if (landingPageMusicControl) {
+        landingPageMusicControl.unmuteFromPreview();
+      }
+    }, previewDuration);
 
     audio.addEventListener("ended", () => {
-      clearTimeout(previewTimeout);
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+      }
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
       setPreviewingSong(null);
+      setPreviewProgress(0);
+      // Unmute landing page music when preview ends
+      if (landingPageMusicControl) {
+        landingPageMusicControl.unmuteFromPreview();
+      }
     });
   };
-
+  const handleStopPreview = () => {
+    playClickSound();
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+      previewAudioRef.current = null;
+    }
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+    setPreviewingSong(null);
+    setPreviewProgress(0);
+    // Unmute landing page music
+    if (landingPageMusicControl) {
+      landingPageMusicControl.unmuteFromPreview();
+    }
+  };
   const handlePlay = (song) => {
+    playClickSound();
     // Stop preview if playing
     if (previewAudioRef.current) {
       previewAudioRef.current.pause();
@@ -82,12 +232,17 @@ export default function SongSelector({ onSongSelect, onClose }) {
     }
   };
 
+  const handleCloseClick = () => {
+    playClickSound();
+    onClose();
+  };
+
   return (
     <div className="song-selector-backdrop" onClick={handleBackdropClick}>
       <div className="song-selector-modal">
         <div className="modal-header">
           <h2 className="modal-title">Select Your Track</h2>
-          <button className="close-button" onClick={onClose}>
+          <button className="close-button" onClick={handleCloseClick}>
             <IoClose />
           </button>
         </div>
@@ -97,7 +252,10 @@ export default function SongSelector({ onSongSelect, onClose }) {
             <div
               key={song.id}
               className={`song-card ${hoveredSong === song.id ? "hovered" : ""}`}
-              onMouseEnter={() => setHoveredSong(song.id)}
+              onMouseEnter={() => {
+                setHoveredSong(song.id);
+                playHoverSound();
+              }}
               onMouseLeave={() => setHoveredSong(null)}
               style={{ "--song-color": song.color }}
             >
@@ -117,14 +275,31 @@ export default function SongSelector({ onSongSelect, onClose }) {
                   className={`action-button preview-button ${
                     previewingSong === song.id ? "active" : ""
                   }`}
-                  onClick={() => handlePreview(song)}
-                  disabled={previewingSong === song.id}
+                  onClick={() => previewingSong === song.id ? handleStopPreview() : handlePreview(song)}
+                  onMouseEnter={playHoverSound}
                 >
                   {previewingSong === song.id ? (
-                    <>
-                      <span className="pulse-dot"></span>
-                      Previewing...
-                    </>
+                    <div className="stop-preview-wrapper">
+                      <svg className="progress-ring" width="24" height="24">
+                        <circle
+                          className="progress-ring-circle"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          fill="transparent"
+                          r="10"
+                          cx="12"
+                          cy="12"
+                          style={{
+                            strokeDasharray: `${2 * Math.PI * 10}`,
+                            strokeDashoffset: `${2 * Math.PI * 10 * (1 - previewProgress / 100)}`,
+                            transform: 'rotate(-90deg)',
+                            transformOrigin: '50% 50%',
+                            transition: 'stroke-dashoffset 0.1s linear'
+                          }}
+                        />
+                      </svg>
+                      <IoStop className="stop-icon" />
+                    </div>
                   ) : (
                     <>
                       <IoHeadset className="icon" />
@@ -136,6 +311,7 @@ export default function SongSelector({ onSongSelect, onClose }) {
                 <button
                   className="action-button play-button"
                   onClick={() => handlePlay(song)}
+                  onMouseEnter={playHoverSound}
                 >
                   <IoPlay className="icon" />
                   Play

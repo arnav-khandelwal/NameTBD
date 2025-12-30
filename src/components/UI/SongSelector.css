@@ -183,7 +183,40 @@
 .preview-button.active {
   background: #d42426;
   color: white;
-  animation: bouncePulse 1s infinite;
+  cursor: pointer;
+}
+
+.preview-button.active:hover {
+  background: #b11d1f;
+}
+
+/* Stop Preview Button Wrapper */
+.stop-preview-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.progress-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+
+.progress-ring-circle {
+  stroke: currentColor;
+  opacity: 0.8;
+}
+
+.stop-icon {
+  font-size: 12px;
+  z-index: 1;
 }
 
 .play-button {

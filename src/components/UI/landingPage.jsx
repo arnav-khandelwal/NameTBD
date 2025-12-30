@@ -2,22 +2,49 @@ import React, { useState, useRef } from "react";
 import "./landingPage.css";
 import { FaGamepad, FaBell, FaTrophy, FaStar, FaTree, FaSnowflake, FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import { GiPineTree, GiSparkles } from "react-icons/gi";
-import { IoSnowSharp } from "react-icons/io5";
+import { IoSnowSharp, IoSettings } from "react-icons/io5";
 import { HiArrowSmLeft } from "react-icons/hi";
 import { HiArrowSmRight } from "react-icons/hi";
 import { FaHandPaper } from "react-icons/fa";
+import Settings from "./Settings";
 
-export default function LandingPage({  onFreePlayStart }) {
+export default function LandingPage({  onFreePlayStart, onMusicControlReady }) {
   const [showCampaign, setShowCampaign] = useState(false);
-  const [volume, setVolume] = useState(0.1);
-  const [isMuted, setIsMuted] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  
+  // Load settings from localStorage
+  const [settings, setSettings] = useState(() => {
+    const savedSettings = localStorage.getItem('beatfall_settings');
+    if (savedSettings) {
+      return JSON.parse(savedSettings);
+    }
+    return {
+      mainMenuVolume: 0.1,
+      hapticsVolume: 0.5,
+      gameVolume: 0.5,
+      mainMenuMuted: false,
+      hapticsMuted: false
+    };
+  });
+  
   const audioContextRef = useRef(null);
   const bgMusicRef = useRef(null);
+  const [isTemporarilyMuted, setIsTemporarilyMuted] = useState(false);
+
+  // Expose music control to parent
+  React.useEffect(() => {
+    if (onMusicControlReady) {
+      onMusicControlReady({
+        muteForPreview: () => setIsTemporarilyMuted(true),
+        unmuteFromPreview: () => setIsTemporarilyMuted(false),
+      });
+    }
+  }, [onMusicControlReady]);
 
   // Start background music on mount or user interaction
   React.useEffect(() => {
     if (bgMusicRef.current) {
-      bgMusicRef.current.volume = volume;
+      bgMusicRef.current.volume = settings.mainMenuVolume;
       // Try to play immediately
       const playPromise = bgMusicRef.current.play();
       
@@ -34,25 +61,17 @@ export default function LandingPage({  onFreePlayStart }) {
         });
       }
     }
-  }, [volume]);
+  }, [settings.mainMenuVolume]);
 
   // Update volume when state changes
   React.useEffect(() => {
     if (bgMusicRef.current) {
-      bgMusicRef.current.volume = isMuted ? 0 : volume;
+      bgMusicRef.current.volume = (settings.mainMenuMuted || isTemporarilyMuted) ? 0 : settings.mainMenuVolume;
     }
-  }, [volume, isMuted]);
+  }, [settings.mainMenuVolume, settings.mainMenuMuted, isTemporarilyMuted]);
 
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
-  const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    if (newVolume > 0) {
-      setIsMuted(false);
-    }
+  const handleSettingsChange = (newSettings) => {
+    setSettings(newSettings);
   };
 
   const ensureAudioContext = () => {
@@ -66,6 +85,7 @@ export default function LandingPage({  onFreePlayStart }) {
   };
 
   const playHoverBell = async () => {
+    if (settings.hapticsMuted) return;
     const ctx = ensureAudioContext();
     if (!ctx) return;
     if (ctx.state === "suspended") {
@@ -82,8 +102,9 @@ export default function LandingPage({  onFreePlayStart }) {
     osc.type = "triangle";
     osc.frequency.setValueAtTime(1200, now);
 
+    const volume = settings.hapticsVolume * 0.06;
     gain.gain.setValueAtTime(0.0, now);
-    gain.gain.linearRampToValueAtTime(0.06, now + 0.02);
+    gain.gain.linearRampToValueAtTime(volume, now + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
 
     osc.connect(gain);
@@ -94,6 +115,7 @@ export default function LandingPage({  onFreePlayStart }) {
   };
 
   const playClickThump = async () => {
+    if (settings.hapticsMuted) return;
     const ctx = ensureAudioContext();
     if (!ctx) return;
     if (ctx.state === "suspended") {
@@ -112,8 +134,9 @@ export default function LandingPage({  onFreePlayStart }) {
     osc.frequency.setValueAtTime(220, now);
     osc.frequency.exponentialRampToValueAtTime(80, now + 0.18);
 
+    const volume = settings.hapticsVolume * 0.08;
     gain.gain.setValueAtTime(0.0, now);
-    gain.gain.linearRampToValueAtTime(0.08, now + 0.02);
+    gain.gain.linearRampToValueAtTime(volume, now + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
 
     osc.connect(gain);
@@ -196,21 +219,26 @@ export default function LandingPage({  onFreePlayStart }) {
       <div className="header-tags">
         <div className="tag-box">v0.0.0</div>
         <div className="tag-box gold-text">CHRISTMAS SPECIAL</div>
-        <div className="tag-box volume-control">
-          <button className="volume-toggle" onClick={toggleMute}>
-            {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
-          </button>
-          <input 
-            type="range" 
-            min="0" 
-            max="1" 
-            step="0.05" 
-            value={volume}
-            onChange={handleVolumeChange}
-            className="volume-slider"
-          />
-        </div>
+        <button 
+          className="settings-button"
+          onClick={() => {
+            setShowSettings(true);
+            playClickThump();
+          }}
+          onMouseEnter={playHoverBell}
+        >
+          <IoSettings />
+        </button>
       </div>
+      
+      {/* Settings Modal */}
+      {showSettings && (
+        <Settings
+          onClose={() => setShowSettings(false)}
+          initialSettings={settings}
+          onSettingsChange={handleSettingsChange}
+        />
+      )}
 
       <div className="main-layout">
         {/* Left: Controls */}

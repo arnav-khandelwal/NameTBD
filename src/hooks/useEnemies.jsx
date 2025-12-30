@@ -11,6 +11,9 @@ const BOSS_IMAGES = [elfBoss, reaperBoss, orcBoss];
 const ENEMY_SPEED = 0.045; // 3D units per frame
 const SPAWN_RADIUS = 15; // Distance from center where enemies spawn
 const KILL_RADIUS = 2; // Distance at which enemies die (reach player)
+const SCOPE_CENTER_Y = 0.8; // The Y position of scope center (camera target)
+const HARMONIC_AMPLITUDE = 0.15; // Maximum vertical oscillation from center
+const HARMONIC_FREQUENCY = 0.05; // Speed of oscillation
 
 export function useEnemies(beatDetected, isPlaying, onEnemySpawn , onEnemyHitPlayer) {
   const [enemies, setEnemies] = useState([]);
@@ -28,14 +31,15 @@ export function useEnemies(beatDetected, isPlaying, onEnemySpawn , onEnemyHitPla
 
       const bossEnemy = {
         id: nextIdRef.current++,
-        position: [spawnX, 0.6, spawnZ], // Bosses spawn a bit higher/grounded
+        position: [spawnX, SCOPE_CENTER_Y, spawnZ], // Spawn at scope center
         direction: [-spawnX / SPAWN_RADIUS, 0, -spawnZ / SPAWN_RADIUS],
         type: "BOSS",
         image: bossImg,
         size: 3,            // bigger than minions
         health: 500,          // 10x normal Krampus health (50 * 10)
         maxHealth: 500,
-        isBoss: true          // Flag for potential special effects
+        isBoss: true,          // Flag for potential special effects
+        harmonicPhase: Math.random() * Math.PI * 2, // Random starting phase for harmonic motion
       };
 
       if (onEnemySpawn) onEnemySpawn(0.6);
@@ -75,24 +79,6 @@ export function useEnemies(beatDetected, isPlaying, onEnemySpawn , onEnemyHitPla
   useEffect(() => {
     if (beatDetected && isPlaying) {
       setEnemies(prev => {
-        const MIN_Y_DISTANCE = 0.5; // Minimum vertical distance in 3D units
-        let randomY;
-        let validPosition = false;
-        let attempts = 0;
-
-        // Try to find a Y position that doesn't overlap with existing enemies
-        // Y range from 0.4 to 0.8 (ground level to head height)
-        while (!validPosition && attempts < 10) {
-          randomY = Math.random() * 0.2 + 0.4;
-          validPosition = prev.every(enemy => Math.abs(enemy.position[1] - randomY) >= MIN_Y_DISTANCE);
-          attempts++;
-        }
-
-        // If we couldn't find a valid position after 10 attempts, use the random position anyway
-        if (attempts === 10) {
-          randomY = Math.random() * 0.2 + 0.4;
-        }
-
         const randomImg = ENEMY_IMAGES[Math.floor(Math.random() * ENEMY_IMAGES.length)];
 
         // Spawn in a circle around the player (center at 0, 0)
@@ -110,16 +96,17 @@ export function useEnemies(beatDetected, isPlaying, onEnemySpawn , onEnemyHitPla
         const isgremlin = randomImg === gremlinImg;
         const newEnemy = {
           id: nextIdRef.current++,
-          position: [spawnX, randomY, spawnZ], // [x, y, z] - spawn at radius
+          position: [spawnX, SCOPE_CENTER_Y, spawnZ], // Spawn at scope center Y
           direction: [normalizedDirX, 0, normalizedDirZ], // Normalized direction towards center
           type: randomImg.split("/").pop().replace(".png", ""),
           image: randomImg,
           size: isKrampus ? 1.2 : isgremlin ? 1 : 0.9,
           health: isKrampus ? 75 : isgremlin ? 50 : 25,
           maxHealth: isKrampus ? 75 : isgremlin ? 50 : 25,
+          harmonicPhase: Math.random() * Math.PI * 2, // Random starting phase for harmonic motion
         };
 
-        if (onEnemySpawn) onEnemySpawn(randomY);
+        if (onEnemySpawn) onEnemySpawn(SCOPE_CENTER_Y);
         return [...prev, newEnemy];
       });
     }
@@ -136,14 +123,23 @@ export function useEnemies(beatDetected, isPlaying, onEnemySpawn , onEnemyHitPla
     const update = () => {
       setEnemies(prev =>
         prev
-          .map(enemy => ({
-            ...enemy,
-            position: [
-              enemy.position[0] + enemy.direction[0] * ENEMY_SPEED,
-              enemy.position[1],
-              enemy.position[2] + enemy.direction[2] * ENEMY_SPEED,
-            ],
-          }))
+          .map(enemy => {
+            // Update harmonic phase
+            const newPhase = enemy.harmonicPhase + HARMONIC_FREQUENCY;
+            
+            // Calculate Y position with harmonic motion centered at SCOPE_CENTER_Y
+            const harmonicY = SCOPE_CENTER_Y + Math.sin(newPhase) * HARMONIC_AMPLITUDE;
+            
+            return {
+              ...enemy,
+              position: [
+                enemy.position[0] + enemy.direction[0] * ENEMY_SPEED,
+                harmonicY, // Use harmonic Y position
+                enemy.position[2] + enemy.direction[2] * ENEMY_SPEED,
+              ],
+              harmonicPhase: newPhase,
+            };
+          })
           .filter(enemy => {
             const dx = enemy.position[0];
             const dz = enemy.position[2];

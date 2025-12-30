@@ -77,76 +77,37 @@
   animation: badge-bob 6s ease-in-out infinite;
 }
 
-.tag-box.volume-control {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 15px;
-  min-width: 180px;
-}
-
-.volume-toggle {
-  background: none;
-  border: none;
+/* Settings Button */
+.settings-button {
+  background: radial-gradient(circle at top, rgba(30, 30, 30, 0.96), rgba(5, 5, 5, 0.9));
+  border: 2px solid rgba(255, 224, 160, 0.9);
   color: #ffcc00;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  padding: 8px 16px;
+  border-radius: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  padding: 0;
+  justify-content: center;
   transition: all 0.2s ease;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.1),
+    0 0 14px rgba(255, 120, 120, 0.22),
+    0 0 16px rgba(120, 255, 170, 0.2);
 }
 
-.volume-toggle:hover {
+.settings-button:hover {
   color: #ffd700;
-  transform: scale(1.1);
-  filter: drop-shadow(0 0 6px rgba(255, 220, 100, 0.6));
+  transform: translateY(-2px) scale(1.05);
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.9),
+    0 0 25px rgba(255, 255, 255, 0.15),
+    0 0 18px rgba(255, 220, 100, 0.4);
 }
 
-.volume-slider {
-  width: 100px;
-  height: 4px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: linear-gradient(to right, rgba(255, 204, 0, 0.3), rgba(255, 204, 0, 0.8));
-  border-radius: 5px;
-  outline: none;
-  cursor: pointer;
-}
-
-.volume-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  background: #ffcc00;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
-  transition: all 0.2s ease;
-}
-
-.volume-slider::-webkit-slider-thumb:hover {
-  background: #ffd700;
-  transform: scale(1.2);
-  box-shadow: 0 0 12px rgba(255, 220, 100, 0.8);
-}
-
-.volume-slider::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  background: #ffcc00;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
-  transition: all 0.2s ease;
-}
-
-.volume-slider::-moz-range-thumb:hover {
-  background: #ffd700;
-  transform: scale(1.2);
-  box-shadow: 0 0 12px rgba(255, 220, 100, 0.8);
+.settings-button:active {
+  transform: translateY(0) scale(1);
 }
 
 /* Side Panels (Controls & Leaderboard) */

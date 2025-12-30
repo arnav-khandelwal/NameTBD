@@ -12,7 +12,7 @@ import Minimap from "./components/UI/Minimap";
 import "./components/UI/ScopeOverlay.css";
 import HealthBar from "./world/UserHealthBar";
 
-export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive }) {
+export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive, landingPageMusicControl }) {
   const MAX_PLAYER_HEALTH=500
   const [playerHp, setPlayerHp] = useState(MAX_PLAYER_HEALTH); /*user's health */
   // To avoid the "never used" error, a test effect:
@@ -113,6 +113,7 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
         <SongSelector
           onSongSelect={handleSongSelect}
           onClose={() => setShowSongSelector(false)}
+          landingPageMusicControl={landingPageMusicControl}
         />
       )}
 

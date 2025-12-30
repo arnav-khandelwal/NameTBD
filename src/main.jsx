@@ -1,4 +1,4 @@
-import { StrictMode, useState } from 'react'
+import { StrictMode, useState, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
@@ -7,6 +7,7 @@ import LandingPage from './components/UI/landingPage.jsx'
 function Root() {
   const [showLandingPage, setShowLandingPage] = useState(true);
   const [showSongSelector, setShowSongSelector] = useState(false);
+  const landingPageMusicControlRef = useRef(null);
 
   const handleFreePlayStart = () => {
     // Show song selector modal
@@ -32,10 +33,14 @@ function Root() {
         onSongSelected={handleSongSelected}
         onMainMenu={handleMainMenu}
         isGameActive={!showLandingPage}
+        landingPageMusicControl={landingPageMusicControlRef.current}
       />
       {showLandingPage && (
         <LandingPage 
           onFreePlayStart={handleFreePlayStart}
+          onMusicControlReady={(control) => {
+            landingPageMusicControlRef.current = control;
+          }}
         />
       )}
     </StrictMode>
