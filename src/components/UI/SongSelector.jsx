@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { IoClose, IoHeadset, IoPlay, IoMusicalNotes, IoStop } from "react-icons/io5";
 import "./SongSelector.css";
 import blackoutAudio from "../../assets/audio/blackout.mp3";
-import relaxAudio from "../../assets/audio/relax.mp3";
+import relaxAudio from "../../assets/audio/Relax.mp3";
 
 // Song library - easily extensible for more songs
 const SONGS = [
