@@ -4,11 +4,10 @@ import "../components/UI/HealthBar.css";
 export default function HealthBar({ hp , maxHp }) {
   const ratio = Math.max(0, hp / maxHp);
   const getHealthColor = () => {
-    if (hp > maxHp * 0.6) return "#2dbf1f"; // green
-    if (hp > maxHp * 0.3) return "#ffcc00"; // yellow
-    return "#ff3333";                       // red
+    if (hp > maxHp * 0.6) return "#2dbf1f"; 
+    if (hp > maxHp * 0.3) return "#ffcc00";
+    return "#ff3333";                       
   };
-
 
   return (
     <div className="health-container">

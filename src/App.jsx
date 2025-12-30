@@ -11,19 +11,16 @@ import ScopeOverlay from "./components/UI/ScopeOverlay";
 import Minimap from "./components/UI/Minimap";
 import "./components/UI/ScopeOverlay.css";
 import HealthBar from "./world/UserHealthBar";
-
-export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive, landingPageMusicControl }) {
+import { FaSnowflake } from "react-icons/fa";
+export default function App({ showSongSelector: externalShowSongSelector, setShowSongSelector: externalSetShowSongSelector, onSongSelected, onMainMenu, isGameActive, landingPageMusicControl  }) {
   const MAX_PLAYER_HEALTH=500
   const [playerHp, setPlayerHp] = useState(MAX_PLAYER_HEALTH); /*user's health */
-  // To avoid the "never used" error, a test effect:
-  useEffect(() => {
-    console.log("Player HP system initialized at:", playerHp);
-  }, [playerHp]);
+  const [gameOver, setGameOver] = useState(false);
+
   const [hand, setHand] = useState({ active: false });
   const [internalShowSongSelector, setInternalShowSongSelector] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
   const [score, setScore] = useState(0);
-
 
   // Use external control if provided, otherwise use internal state
   const showSongSelector = externalShowSongSelector !== undefined ? externalShowSongSelector : internalShowSongSelector;
@@ -63,14 +60,25 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
   }, []);
 
   const handlePlayerDamage = useCallback((enemy) => {
-    const DAMAGE =
-      enemy.type === "krampus" ? 20 : "gremlin" ? 10 : "ghostImg" ? 5 : 50;
+  const DAMAGE_MAP = {
+    krampus: 20,
+    gremlin: 10,
+    ghostImg: 5,
+    BOSS: 50
+  };
 
-    setPlayerHp(h => Math.max(0, h - DAMAGE));
-  }, []);
+  const DAMAGE = DAMAGE_MAP[enemy.type] ?? 10;
+
+  setPlayerHp(prev => {
+    const nextHp = Math.max(0, prev - DAMAGE);
+    if (nextHp === 0) setGameOver(true);
+    return nextHp;
+  });
+}, []);
+
 
   // Enemy spawning system with strong pulse callback
-  const { enemies, damageEnemy } = useEnemies(audio.beatDetected, audio.isPlaying, handleEnemySpawn, handlePlayerDamage);
+  const { enemies, damageEnemy } = useEnemies(audio.beatDetected, audio.isPlaying && !gameOver, handleEnemySpawn, handlePlayerDamage);
 
   const handleSongSelect = (song) => {
     setSelectedSong(song);
@@ -104,6 +112,11 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
     }
   };
 
+useEffect(() => {
+  if (gameOver && audio?.isPlaying) {
+    audio.pause();
+  }
+}, [gameOver, audio]);
 
 
   return (
@@ -133,7 +146,7 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
         fire={activeHand.fire}
       />
       {/*UserHealthBar*/}
-      <HealthBar hp={playerHp} maxHp={MAX_PLAYER_HEALTH}/>
+      <HealthBar hp={playerHp} maxHp={MAX_PLAYER_HEALTH} />
       <ScopeOverlay visible={activeHand.aim} fire={hand.fire} />
       {/* Top-right Controls */}
       <div style={{
@@ -300,6 +313,51 @@ export default function App({ showSongSelector: externalShowSongSelector, setSho
       }
       {/* Minimap */}
       <Minimap enemies={enemies} hand={activeHand} />
+
+      {gameOver && (
+  <div style={{
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.85)",
+    zIndex: 99999,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    fontFamily: "monospace"
+  }}>
+    <h1 style={{ fontSize: "64px", marginBottom: "20px" }}>
+      <span style={{ marginRight: "58px" }}>GAME</span>
+<span>
+       VER
+        <FaSnowflake className="decoration-berry glow-snowflake" size={50} style={{
+      position: "relative",
+      left: "-155px",
+      bottom:"-1px"
+    }}></FaSnowflake>
+</span>
+    </h1>
+
+    <p style={{ fontSize: "24px", marginBottom: "30px" }}>
+      Final Score: {score}
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      style={{
+        padding: "12px 20px",
+        fontSize: "18px",
+        cursor: "pointer",
+        borderRadius: "8px",
+        border: "none",
+        background: "#ff3333",
+        color: "white"
+      }}
+    >
+      Restart
+    </button>
+  </div>
+)}
     </>
   );
 }
